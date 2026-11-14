@@ -4,6 +4,8 @@ import { getPatient, patientId, patientName, type RecordReceipt } from "@/api/pa
 import { useAuth } from "@/context/AuthContext";
 import { PatientLoadState, PatientPermission, patientSecondary, usePatientLoad } from "@/components/patient/patientWorkspace";
 import PatientManagement from "./PatientManagement";
+import PatientClinicalHistory from "@/components/patient/PatientClinicalHistory";
+import { canReadClinical } from "@/api/clinical";
 
 export default function PatientProfile({ historyOnly = false }: { historyOnly?: boolean }) {
   const { id } = useParams();
@@ -29,16 +31,17 @@ export default function PatientProfile({ historyOnly = false }: { historyOnly?: 
         <div className="flex flex-wrap gap-2"><button className={patientSecondary} onClick={record.reload}>Refresh patient</button>
           {user?.permissions?.includes("appointments.view") && user.permissions.includes("appointments.create") && <Link className={patientSecondary} to={"/appointments/new?patient_id=" + patient.id}>Book appointment</Link>}
           {user?.permissions?.includes("encounters.view") && <Link className={patientSecondary} to={"/visits?patient_id=" + patient.id}>Patient visits</Link>}
+          {user?.permissions?.includes("clinical.history.view") && canReadClinical(user.permissions) && <Link className={patientSecondary} to={"/patients/" + patient.id + "/history"}>Clinical history</Link>}
           {user?.permissions?.includes("patients.update") && <Link className={patientSecondary} to={"/patients/" + patient.id + "/edit"}>Edit patient</Link>}
           {user?.permissions?.includes("patients.access.manage") && <Link className={patientSecondary} to={"/patients/access?id=" + patient.id}>Manage patient access</Link>}</div>
       </div>
-      {historyOnly ? <div className="rounded-xl border bg-white p-6"><h2 className="text-xl font-semibold">Clinical history</h2><p className="mt-3 text-sm text-slate-600">Clinical history is not available yet.</p><Link className="mt-4 inline-block text-[#573FD1] underline" to={"/patients/" + patient.id}>Return to patient details</Link></div> : <>
+      {historyOnly ? <><PatientClinicalHistory key={patient.id + ":" + patient.version} patient={patient.id} /><Link className="inline-block text-[#573FD1] underline" to={"/patients/" + patient.id}>Return to patient details</Link></> : <>
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr]"><section className="rounded-xl border bg-white p-6"><h2 className="mb-5 text-xl font-semibold">Personal information</h2>
           <dl className="grid gap-5 text-sm sm:grid-cols-2">{([["Date of birth", patient.date_of_birth ? patient.date_of_birth + (patient.dob_estimated ? " (estimated)" : "") : null], ["Sex", patient.sex], ["Phone", patient.phone], ["Email", patient.email], ["Marital status", patient.marital_status], ["Religion", patient.religion], ["Occupation", patient.occupation], ["State of origin", patient.state_of_origin], ["Address", patient.address]] as const).map(([label, value]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="mt-1 whitespace-pre-wrap break-words font-medium">{value || "Not recorded"}</dd></div>)}</dl>
         </section><section className="rounded-xl border bg-white p-6"><h2 className="mb-5 text-xl font-semibold">Emergency contacts</h2>{patient.contacts.length === 0 ? <p className="text-sm text-slate-500">No contacts recorded.</p> : patient.contacts.map((contact, index) => <div key={contact.id ?? index} className="mb-4 border-b pb-4 text-sm"><p className="font-medium">{contact.name}</p><p className="mt-1 text-slate-600">{contact.relationship}</p><p className="mt-1">{contact.phone}</p></div>)}</section></div>
         <PatientManagement key={patient.id + ":" + patient.version} patient={patient} onSaved={saved} onReload={record.reload}
           activeTab={management?.id === patient.id ? management.tab : undefined} onTab={(tab) => setManagement({ id: patient.id, tab })} />
-        <div className="rounded-xl border bg-white p-5 text-sm text-slate-600">Clinical records, insurance coverage and patient photos will become available as those services are introduced.</div>
+        {canReadClinical(user?.permissions) && <div className="rounded-xl border bg-white p-5 text-sm"><h2 className="font-semibold">Clinical records</h2><p className="mt-2 text-slate-600">Open a saved visit to record observations, notes, diagnoses, procedures and prescriptions.</p><Link className="mt-3 inline-block text-[#573FD1] underline" to={"/visits?patient_id=" + patient.id}>Choose a patient visit</Link></div>}
       </>}
     </>}
   </section></PatientPermission>;

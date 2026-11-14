@@ -71,6 +71,7 @@ import CreateBooking from "@/pages/visits/BookingForm";
 import BookingDetail from "@/pages/visits/BookingDetail";
 import VisitRegister from "@/pages/visits/VisitRegister";
 import VisitDetail from "@/pages/visits/VisitDetail";
+import VisitClinical from "@/pages/visits/VisitClinical";
 import WalkIn from "@/pages/visits/VisitForms";
 
 import AdminDashboard from "@/pages/admin/dashboard/AdminDashboard";
@@ -146,6 +147,7 @@ const RoleBasedRoutes = () => {
         <Route path="/visits" element={<VisitRegister />} />
         <Route path="/visits/new" element={<WalkIn />} />
         <Route path="/visits/:id" element={<VisitDetail />} />
+        <Route path="/visits/:id/clinical" element={<VisitClinical />} />
       </Route>
 
       {/* Frontdesk â€” available for preview without login */}
