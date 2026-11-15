@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/store/useAuthStore";
 
 const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
+  (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
 
 interface FetchOptions extends RequestInit {
   data?: unknown; //Used this for passing POST/PUT body data

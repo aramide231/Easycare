@@ -1,5 +1,25 @@
 # React + TypeScript + Vite
 
+## API routing and deployment
+
+Use `VITE_API_BASE_URL=/api/v1` locally and in the Vercel project's environment
+settings. Vercel environment settings override the value in `.env`; redeploy
+after changing them.
+
+`vercel.json` forwards `/api/v1/*` to the configured Laravel backend before
+applying the frontend page fallback. Vite uses the same backend through its
+development proxy. If the backend address changes, update both configurations.
+
+Before releasing, verify that the backend actually exposes `/api/v1/auth/me`.
+The public Vercel endpoint must return a JSON session response (or a JSON 401
+for a signed-out user), never `index.html`. Backend access restrictions must
+also allow the proxy requests. The backend path and session behavior could not
+be verified during this change because its Cloudflare layer returned 403.
+
+This checkout's authentication differs from the currently deployed site's
+session-based authentication. The routing correction does not migrate the
+local mock authentication or establish compatibility with that backend.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
