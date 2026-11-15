@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { CommandState, CommandSubmit, LoadState, Pager, Reason, control, onForm, secondary, useCommand, useLoad } from "./visitWorkspace";
 import { clinicalPayload, diagnosisFields, initialClinicalPayload, medicationFields, procedureFields, vitalFields, type ClinicalField } from "./clinicalFields";
 import { ClinicalSummary } from "./ClinicalValues";
+import { careForms } from "@/api/care";
 
 function Field({ field, value, onChange }: { field: ClinicalField; value: unknown; onChange: (value: string) => void }) {
   const common = { "aria-label": field.label, className: control, required: field.required, maxLength: field.max, value: field.type === "datetime-local" ? typeof value === "string" && (value.endsWith("Z") || /[+-]\d\d:\d\d$/.test(value)) ? hospitalInput(value) : String(value ?? "") : String(value ?? ""), onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event.target.value) };
@@ -17,12 +18,13 @@ function TemplateInput({ name, definition, value, onChange }: { name: string; de
   return <label className="block text-sm font-medium">{label}<input aria-label={label} className={control} value={String(value ?? "")} type={definition.type === "text" ? "text" : definition.type === "date" ? "date" : "number"} maxLength={definition.max_length ?? 5000} min={definition.min} max={definition.max} step={definition.type === "integer" ? "1" : "any"} onChange={(event) => onChange(event.target.value === "" ? null : ["number", "integer"].includes(definition.type) ? Number(event.target.value) : event.target.value)} /></label>;
 }
 
-export default function ClinicalForm({ visit, kind, action, original = null, options, onSaved, onReload }: {
+export default function ClinicalForm({ visit, kind, action, original = null, options, onSaved, onReload, care }: {
   visit: Visit; kind: ClinicalKind; action: ClinicalAction; original?: ClinicalRecord | null; options: ClinicalOptions;
   onSaved: (record: ClinicalRecord) => void; onReload: () => void;
+  care?: { id: number; version: number; birth_id: number | null; type: string };
 }) {
   const { user } = useAuth();
-  const [draft, setDraft] = useState(() => initialClinicalPayload(kind, original?.payload));
+  const [draft, setDraft] = useState<Payload>(() => ({ ...initialClinicalPayload(kind, original?.payload), ...(care && !original ? { section: "note" } : {}) }));
   const [template, setTemplate] = useState<ClinicalTemplate | null>(original?.template_version ?? null);
   const [templatePage, setTemplatePage] = useState(1);
   const [procedurePage, setProcedurePage] = useState(1);
@@ -31,14 +33,16 @@ export default function ClinicalForm({ visit, kind, action, original = null, opt
   const editing = ["store", "update", "amend"].includes(action);
   const finalize = !["store", "update"].includes(action);
   const needsReason = ["amend", "void", "stop", "complete"].includes(action);
-  const templates = useLoad("clinical-templates-" + templatePage, (signal) => clinicalTemplates(templatePage, signal), kind === "entry" && action === "store");
+  const canChooseTemplate = kind === "entry" && (action === "store" || !!care && action === "update" && !original?.template_version);
+  const templates = useLoad("clinical-templates-" + (care ? care.id + ":" + care.type + ":" + care.birth_id : "all") + ":" + templatePage,
+    (signal) => care ? careForms(care.birth_id === null ? care.type : "birth", templatePage, signal) : clinicalTemplates(templatePage, signal), canChooseTemplate);
   const procedures = useLoad("clinical-procedure-picker-" + visit.id + ":" + procedurePage,
     (signal) => listClinical(visit.id, visit.patient_id, "procedure", { page: procedurePage, status: "signed" }, signal), kind === "entry" && action === "store" && draft.section === "procedure_findings");
   const set = (key: string, value: unknown) => setDraft((old) => ({ ...old, [key]: value }));
   const fields = (draft.fields ?? {}) as Payload;
   const items = (draft.items ?? []) as Payload[];
   const definition = template?.fields ?? (draft.section === "physical_examination" ? Object.fromEntries((options.physical_examination_fields ?? []).map((key) => [key, { type: "text", max_length: 5000 } as TemplateField])) : {});
-  const command = useCommand((input: ClinicalInput, key) => clinicalCommand(visit.id, visit.patient_id, kind, action, original, input, key, user!.id!), (result) => { setPassword(""); onSaved(result.data); }, onReload);
+  const command = useCommand((input: ClinicalInput, key) => clinicalCommand(visit.id, visit.patient_id, kind, action, original, input, key, user!.id!, care), (result) => { setPassword(""); onSaved(result.data); }, onReload);
   const makeInput = (): ClinicalInput => {
     const payload = editing ? clinicalPayload(kind, draft, original?.payload) : undefined;
     if (editing && original && Object.keys(payload!).length === 0) throw new ApiError("Change the clinical values before saving a correction or edit.", 422);
@@ -60,7 +64,7 @@ export default function ClinicalForm({ visit, kind, action, original = null, opt
           <button type="button" className={secondary} disabled={items.length >= 100} onClick={() => set("items", [...items, { medication_name: "" }])}>Add medication</button></>
           : kind === "entry" ? <>
             <label className="block text-sm font-medium">Note section<select aria-label="Note section" className={control} disabled={!!original} value={String(draft.section)} onChange={(event) => setDraft((old) => ({ ...old, section: event.target.value, fields: {}, related_record_id: null }))}>{options.sections?.map((section) => <option key={section} value={section}>{clinicalLabel(section)}</option>)}</select></label>
-            {action === "store" ? <div className="space-y-3 rounded-lg border p-4"><h3 className="font-semibold">Published note template</h3><LoadState {...templates} /><label className="block text-sm">Template<select aria-label="Template" className={control} value={template?.id ?? ""} onChange={(event) => { const selected = templates.data?.data.find((item) => item.id === Number(event.target.value)) ?? null; setTemplate(selected); setDraft((old) => ({ ...old, clinical_template_version_id: selected?.id ?? null, fields: {} })); }}><option value="">Narrative / standard examination</option>{template && !templates.data?.data.some((item) => item.id === template.id) && <option value={template.id}>{template.title} · Version {template.version}</option>}{templates.data?.data.map((item) => <option key={item.id} value={item.id} disabled={!item.supported}>{item.title} · Version {item.version}{!item.supported ? " · Unavailable format" : ""}</option>)}</select></label>{templates.data && <Pager meta={templates.data.meta} onPage={setTemplatePage} />}</div> : <p className="text-sm">Saved section and template stay fixed. {template ? template.title + " · Version " + template.version : "Standard narrative / examination"}</p>}
+            {canChooseTemplate ? <div className="space-y-3 rounded-lg border p-4"><h3 className="font-semibold">Published note template</h3><LoadState {...templates} /><label className="block text-sm">Template<select aria-label="Template" className={control} value={template?.id ?? ""} onChange={(event) => { const selected = templates.data?.data.find((item) => item.id === Number(event.target.value)) ?? null; setTemplate(selected); setDraft((old) => ({ ...old, clinical_template_version_id: selected?.id ?? null, fields: {} })); }}><option value="">Narrative / standard examination</option>{template && !templates.data?.data.some((item) => item.id === template.id) && <option value={template.id}>{template.title} · Version {template.version}</option>}{templates.data?.data.map((item) => <option key={item.id} value={item.id} disabled={!item.supported}>{item.title} · Version {item.version}{!item.supported ? " · Unavailable format" : ""}</option>)}</select></label>{templates.data && <Pager meta={templates.data.meta} onPage={setTemplatePage} />}</div> : <p className="text-sm">Saved section and template stay fixed. {template ? template.title + " · Version " + template.version : "Standard narrative / examination"}</p>}
             {action === "store" && draft.section === "procedure_findings" && <div className="space-y-3"><LoadState {...procedures} /><label className="block text-sm">Related signed procedure<select aria-label="Related signed procedure" className={control} required value={String(draft.related_record_id ?? "")} onChange={(event) => set("related_record_id", event.target.value ? Number(event.target.value) : null)}><option value="">Choose the saved procedure</option>{draft.related_record_id && !procedures.data?.data.some((item) => item.id === draft.related_record_id) ? <option value={String(draft.related_record_id)}>Selected procedure #{String(draft.related_record_id)}</option> : null}{procedures.data?.data.map((item) => <option key={item.id} value={item.id}>#{item.id} · {String(item.payload.name)}</option>)}</select></label>{procedures.data && <Pager meta={procedures.data.meta} onPage={setProcedurePage} />}</div>}
             {original?.payload.related_record_id ? <p className="text-sm">Related procedure #{String(original.payload.related_record_id)}</p> : null}
             <div className="grid gap-4 sm:grid-cols-2">{Object.entries(definition).map(([key, field]) => <TemplateInput key={key} name={key} definition={field} value={fields[key]} onChange={(value) => set("fields", { ...fields, [key]: value })} />)}</div>

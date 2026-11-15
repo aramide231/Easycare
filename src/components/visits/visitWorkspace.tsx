@@ -38,6 +38,9 @@ export function WorkflowNav() {
     {user?.permissions?.includes("appointments.view") && <Link className="underline" to="/appointments">Bookings</Link>}
     {user?.permissions?.includes("encounters.view") && user.permissions?.includes("patients.view") && <Link className="underline" to="/visits">Visits and queues</Link>}
     {user?.permissions?.includes("patients.view") && <Link className="underline" to="/patients">Patient registry</Link>}
+    {user?.permissions?.includes("admissions.view") && <Link className="underline" to="/admissions">Admissions</Link>}
+    {user?.permissions?.includes("locations.view") && <Link className="underline" to="/wards">Wards and beds</Link>}
+    {user?.permissions?.includes("care.view") && <Link className="underline" to="/care-programs">Care programs</Link>}
   </nav>;
 }
 export default function VisitWorkspace() {
@@ -152,6 +155,6 @@ export function ClinicianPicker({ type, value, onChange, optional = false }: { t
   </div>;
 }
 export function Reason({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return <label className="block text-sm font-medium">Reason<textarea required minLength={5} maxLength={2000} className={patientControl} rows={3} value={value} onChange={(e) => onChange(e.target.value)} /></label>;
+  return <label className="block text-sm font-medium">Reason<textarea aria-label="Reason" required minLength={5} maxLength={2000} className={patientControl} rows={3} value={value} onChange={(e) => onChange(e.target.value)} /></label>;
 }
 export function onForm(event: FormEvent, submit: () => Promise<void>) { event.preventDefault(); void submit(); }

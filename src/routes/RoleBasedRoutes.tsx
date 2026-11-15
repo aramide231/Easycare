@@ -17,18 +17,8 @@ import ReminderPage from "@frontdesk/pages/set-reminder/ReminderPage";
 
 // import Nurse component
 import NurseDashboard from "@/pages/nurse/dashboard/Dashboard";
-import NurseAdmission from "@/pages/nurse/patient-management/admission/Admission";
-import NurseAvailableWard from "@/pages/nurse/patient-management/available-ward/AvailableWard";
-import NurseDischarge from "@/pages/nurse/patient-management/discharge/Discharge";
-import NurseAdmissionReport from "@/pages/nurse/reports/admission/AdmissionReport";
-import NurseDischargeReport from "@/pages/nurse/reports/discharge/DischargeReport";
-import NurseChildBirthReport from "@/pages/nurse/reports/child-birth/ChildBirthReport";
-import NurseAnteNatalReport from "@/pages/nurse/reports/ante-natal/AnteNatalReport";
-import NursePostNatalReport from "@/pages/nurse/reports/post-natal/PostNatalReport";
-import NurseFamilyPlanningReport from "@/pages/nurse/reports/family-planning/FamilyPlanningReport";
-import NurseImmunizationReport from "@/pages/nurse/reports/immunization/ImmunizationReport";
 import NurseDispensedDrugsReport from "@/pages/nurse/reports/dispensed-drugs/DispensedDrugsReport";
-import NurseMakeRequest from "@/pages/nurse/perform-action/make-request/MakeRequest";
+import NurseMakeRequest from "@/pages/nurse/makeRequest/MakeRequest";
 import NurseSetReminder from "@/pages/nurse/perform-action/set-reminder/SetReminder";
 import NurseReportWriting from "@/pages/nurse/reports/report-writing/ReportWriting";
 import NurseRequisition from "@/pages/nurse/reports/requisition/Requisition";
@@ -38,16 +28,7 @@ import DoctorDashboard from "@/pages/doctor/dashboard/DoctorDashboard";
 import DoctorNotification from "@/pages/doctor/notifications/DoctorNotifications";
 import DoctorAccountSettings from "@/pages/doctor/account/AccountSettings";
 import DoctorYourProfile from "@/pages/doctor/account/YourProfile";
-import DoctorAdmission from "@/pages/doctor/admission/Admission";
-import DoctorDischarge from "@/pages/doctor/discharge/Discharge";
-import DoctorAdmissionReport from "@/pages/doctor/reports/AdmissionReport";
-import DoctorAnteNatalReport from "@/pages/doctor/reports/AnteNatalReport";
-import DoctorChildBirthReport from "@/pages/doctor/reports/ChildBirthReport";
-import DoctorDischargeReport from "@/pages/doctor/reports/DischargeReport";
-import DoctorFamilyPlanningReport from "@/pages/doctor/reports/FamilyPlanningReport";
-import DoctorImmunizationReport from "@/pages/doctor/reports/ImmunizationReport";
 import DoctorLogsReport from "@/pages/doctor/reports/DoctorLogsReport";
-import DoctorPostNatalReport from "@/pages/doctor/reports/PostNatalReport";
 import DoctorMakeRequest from "@/pages/nurse/makeRequest/MakeRequest";
 
 // import Diagnostics / Laboratory component from EasyCare-Aramide
@@ -72,6 +53,9 @@ import BookingDetail from "@/pages/visits/BookingDetail";
 import VisitRegister from "@/pages/visits/VisitRegister";
 import VisitDetail from "@/pages/visits/VisitDetail";
 import VisitClinical from "@/pages/visits/VisitClinical";
+import AdmissionDetail, { AdmissionsPage } from "@/pages/visits/Admissions";
+import Wards from "@/pages/visits/Wards";
+import CareProgramDetail, { CareProgramsPage } from "@/pages/visits/CarePrograms";
 import WalkIn from "@/pages/visits/VisitForms";
 
 import AdminDashboard from "@/pages/admin/dashboard/AdminDashboard";
@@ -141,6 +125,11 @@ const RoleBasedRoutes = () => {
       </Route>
 
       <Route element={<VisitWorkspace />}>
+        <Route path="/admissions" element={<AdmissionsPage />} />
+        <Route path="/admissions/:id" element={<AdmissionDetail />} />
+        <Route path="/wards" element={<Wards />} />
+        <Route path="/care-programs" element={<CareProgramsPage />} />
+        <Route path="/care-programs/:id" element={<CareProgramDetail />} />
         <Route path="/appointments" element={<Appointments />} />
         <Route path="/appointments/new" element={<CreateBooking />} />
         <Route path="/appointments/:id" element={<BookingDetail />} />
@@ -175,18 +164,18 @@ const RoleBasedRoutes = () => {
         <Route index element={<NurseDashboard />} />
         <Route path="dashboard" element={<NurseDashboard />} />
         <Route path="notifications" element={<Notifications />} />
-        <Route path="admission" element={<NurseAdmission />} />
-        <Route path="available-ward" element={<NurseAvailableWard />} />
-        <Route path="discharge" element={<NurseDischarge />} />
+        <Route path="admission" element={<AdmissionsPage />} />
+        <Route path="available-ward" element={<Wards />} />
+        <Route path="discharge" element={<AdmissionsPage initialStatus="discharged" />} />
         <Route path="make-request" element={<NurseMakeRequest />} />
         <Route path="reminder" element={<NurseSetReminder />} />
-        <Route path="reports/admission" element={<NurseAdmissionReport />} />
-        <Route path="reports/discharge" element={<NurseDischargeReport />} />
-        <Route path="child-birth" element={<NurseChildBirthReport />} />
-        <Route path="ante-natal" element={<NurseAnteNatalReport />} />
-        <Route path="post-natal" element={<NursePostNatalReport />} />
-        <Route path="family-planning" element={<NurseFamilyPlanningReport />} />
-        <Route path="immunization" element={<NurseImmunizationReport />} />
+        <Route path="reports/admission" element={<AdmissionsPage />} />
+        <Route path="reports/discharge" element={<AdmissionsPage initialStatus="discharged" />} />
+        <Route path="child-birth" element={<CareProgramsPage initialType="delivery" />} />
+        <Route path="ante-natal" element={<CareProgramsPage initialType="antenatal" />} />
+        <Route path="post-natal" element={<CareProgramsPage initialType="postnatal" />} />
+        <Route path="family-planning" element={<CareProgramsPage initialType="family_planning" />} />
+        <Route path="immunization" element={<CareProgramsPage initialType="immunization" />} />
         <Route path="dispensed-drugs" element={<NurseDispensedDrugsReport />} />
         <Route path="report-writing" element={<NurseReportWriting />} />
         <Route path="requisition" element={<NurseRequisition />} />
@@ -221,23 +210,23 @@ const RoleBasedRoutes = () => {
           path="previous-patient-records/:patientId"
           element={<PatientRouteRedirect suffix="/history" />}
         />
-        <Route path="admission" element={<DoctorAdmission />} />
-        <Route path="available-ward" element={<NurseAvailableWard />} />
+        <Route path="admission" element={<AdmissionsPage />} />
+        <Route path="available-ward" element={<Wards />} />
         <Route path="dispensed-drugs" element={<NurseDispensedDrugsReport />} />
-        <Route path="discharge" element={<DoctorDischarge />} />
+        <Route path="discharge" element={<AdmissionsPage initialStatus="discharged" />} />
         <Route path="make-request" element={<DoctorMakeRequest />} />
         <Route path="set-reminder" element={<ReminderPage />} />
-        <Route path="reports/admission" element={<DoctorAdmissionReport />} />
-        <Route path="reports/discharge" element={<DoctorDischargeReport />} />
+        <Route path="reports/admission" element={<AdmissionsPage />} />
+        <Route path="reports/discharge" element={<AdmissionsPage initialStatus="discharged" />} />
         <Route path="doctor-logs" element={<DoctorLogsReport />} />
-        <Route path="immunization" element={<DoctorImmunizationReport />} />
-        <Route path="ante-natal" element={<DoctorAnteNatalReport />} />
-        <Route path="child-birth" element={<DoctorChildBirthReport />} />
-        <Route path="post-natal" element={<DoctorPostNatalReport />} />
+        <Route path="immunization" element={<CareProgramsPage initialType="immunization" />} />
+        <Route path="ante-natal" element={<CareProgramsPage initialType="antenatal" />} />
+        <Route path="child-birth" element={<CareProgramsPage initialType="delivery" />} />
+        <Route path="post-natal" element={<CareProgramsPage initialType="postnatal" />} />
         <Route path="registration-log" element={<PatientRegistry />} />
         <Route
           path="family-planning"
-          element={<DoctorFamilyPlanningReport />}
+          element={<CareProgramsPage initialType="family_planning" />}
         />
         <Route
           path="report-writing"

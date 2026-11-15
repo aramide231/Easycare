@@ -21,7 +21,7 @@ const labels: Record<string, string> = {
 const outcomes = { succeeded: "Succeeded", denied: "Denied", failed: "Failed" };
 const subjects: Record<AuditEvent["subject_type"], string> = {
   staff: "Staff account", role: "Role", patient: "Patient", appointment: "Appointment", encounter: "Visit",
-  clinical: "Clinical record", admission: "Admission", ward: "Ward", bed: "Bed", file: "File", audit: "Audit history",
+  clinical: "Clinical record", admission: "Admission", ward: "Ward", bed: "Bed", file: "File", audit: "Audit history", care_program: "Care program", care_form: "Care form",
 };
 const outcomeStyle = { succeeded: "bg-green-50 text-green-800", denied: "bg-amber-50 text-amber-900", failed: "bg-red-50 text-red-800" };
 function summaryValue(value: AuditEvent["safe_summary"][string]): string {

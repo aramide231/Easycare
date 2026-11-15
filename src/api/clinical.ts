@@ -14,6 +14,7 @@ export interface ClinicalTemplate {
   fields: Record<string, TemplateField> | null; supported?: boolean;
 }
 export interface ClinicalRecord {
+  care_program_id?: number; birth_id?: number | null;
   id: number; patient_id: number; encounter_id: number; kind: ClinicalKind; status: "draft" | "signed" | "voided";
   version: number; authored_by: number; finalized_by: number | null; amends_id: number | null;
   amendment_reason: string | null; void_reason: string | null; recorded_at: string; finalized_at: string | null;
@@ -104,15 +105,20 @@ export function sameClinicalValue(expected: unknown, actual: unknown, field = ""
   return actual === (typeof expected === "string" ? expected.trim() : expected);
 }
 export async function clinicalCommand(encounter: number, patient: number, kind: ClinicalKind, action: ClinicalAction,
-  original: ClinicalRecord | null, data: ClinicalInput, key: string, actor: number) {
+  original: ClinicalRecord | null, data: ClinicalInput, key: string, actor: number,
+  care?: { id: number; version: number; birth_id: number | null }) {
   if (action !== "store" && !original) throw new ApiError("Reload the saved clinical record first.", 422);
-  const url = base(encounter, kind) + (original ? "/" + identity(original.id) : "") + (["store", "update"].includes(action) ? "" : "/" + action);
-  const result = await apiFetch<{ data: ClinicalRecord }>(url, { method: action === "update" ? "PATCH" : "POST", data, headers: { "Idempotency-Key": key } });
+  const prefix = care ? "/care-programs/" + identity(care.id) + "/encounters/" + identity(encounter) + "/records" : base(encounter, kind);
+  const url = prefix + (original ? "/" + identity(original.id) : "") + (["store", "update"].includes(action) ? "" : "/" + action);
+  const body = { ...data } as ClinicalInput & { program_version?: number; birth_id?: number | null };
+  if (care) { delete body.kind; body.program_version = care.version; if (action === "store") body.birth_id = care.birth_id; }
+  const result = await apiFetch<{ data: ClinicalRecord }>(url, { method: action === "update" ? "PATCH" : "POST", data: body, headers: { "Idempotency-Key": key } });
   const record = result.data;
   const replacement = ["amend", "stop", "complete"].includes(action) || action === "void" && original?.status === "signed";
   const status = ["store", "update"].includes(action) ? "draft" : action === "void" ? "voided" : "signed";
   const version = action === "store" ? 1 : replacement ? 2 : (data.version ?? 0) + 1;
   if (!valid(record) || record.encounter_id !== encounter || record.patient_id !== patient || record.kind !== kind
+    || care && (record.care_program_id !== care.id || record.birth_id !== care.birth_id)
     || record.status !== status || record.version !== version || record.superseded
     || record.authored_by !== (replacement || action === "store" ? actor : original?.authored_by)
     || (status !== "draft" && (record.finalized_by !== actor || !record.finalized_at || !Number.isFinite(Date.parse(record.finalized_at))))

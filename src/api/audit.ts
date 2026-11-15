@@ -1,6 +1,13 @@
 import { apiFetch } from "@/api/client/apClient";
 
 export const auditActions = {
+  "care.opened": "Care program opened",
+  "care.completed": "Care program completed",
+  "care.birth_recorded": "Individual baby recorded",
+  "care.birth_linked": "Baby patient identity verified",
+  "care.listed": "Care programs searched",
+  "care.viewed": "Care program viewed",
+  "care.form_published": "Approved care form published",
   "admission.admitted": "Patient admitted",
   "admission.allocated": "Bed allocated",
   "admission.transferred": "Patient transferred",
@@ -92,7 +99,7 @@ export interface AuditEvent {
   outcome: "succeeded" | "denied" | "failed";
   channel: "http" | "console";
   actor_id: number | null;
-  subject_type: "staff" | "role" | "audit" | "file" | "patient" | "appointment" | "encounter" | "clinical" | "admission" | "ward" | "bed";
+  subject_type: "staff" | "role" | "audit" | "file" | "patient" | "appointment" | "encounter" | "clinical" | "admission" | "ward" | "bed" | "care_program" | "care_form";
   subject_id: number | null;
   request_id: string;
   occurred_at: string;

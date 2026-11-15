@@ -4,7 +4,8 @@ import { FaBell, FaProcedures, FaUserCheck } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { buildMockNotifications } from "@/data/mockNotifications";
-import { usePatientManagement } from "@/pages/nurse/shared/context/PatientManagementContext";
+import { listAdmissions } from "@/api/admissions";
+import { useLoad } from "@/components/visits/visitWorkspace";
 import DashboardSummaryCard from "./DashboardSummaryCard";
 
 type SummaryItem = {
@@ -28,7 +29,12 @@ const DashboardSummaryForAll = ({
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { admissions } = usePatientManagement();
+  const canReadAdmissions = ["patients.view", "encounters.view", "admissions.view"].every((code) => user?.permissions?.includes(code));
+  const admissions = useLoad("dashboard-active-admissions", (signal) => Promise.all([
+    listAdmissions({ status: "admitted", per_page: 1 }, signal), listAdmissions({ status: "discharge_authorized", per_page: 1 }, signal),
+  ]), canReadAdmissions);
+  const inpatientCount = !canReadAdmissions ? "Access required" : admissions.data
+    ? String(admissions.data[0].meta.total + admissions.data[1].meta.total) + " patients" : admissions.error ? "Unavailable" : "Loading...";
 
   const notificationCount = buildMockNotifications().length;
 
@@ -69,7 +75,7 @@ const DashboardSummaryForAll = ({
     },
     {
       title: "In Patient",
-      subtitle: `${admissions.length} patients`,
+      subtitle: inpatientCount,
       icon: <FaProcedures size={22} className="text-white" />,
       variant: "dark",
       action: "navigate",
@@ -96,7 +102,7 @@ const DashboardSummaryForAll = ({
     },
     {
       title: "In Patient",
-      subtitle: `${admissions.length} patients`,
+      subtitle: inpatientCount,
       icon: <FaProcedures size={22} className="text-white" />,
       variant: "dark",
       action: "navigate",
