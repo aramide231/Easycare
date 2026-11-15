@@ -1,4 +1,44 @@
-# React + TypeScript + Vite
+# EasyCare frontend
+
+The read-only audit viewer is available at `/admin/audit` to staff with `audit.view`. It filters staff/security activity by action, outcome, source, actor/record IDs and UTC dates. Pagination retains the current history boundary; Refresh includes new activity. Reviewers can access this screen without staff-management permission. Run the backend migrations and seeder for the independent audit grant baseline before using it. Audit history does not display submitted credentials or personal profile values.
+
+Private files are available at `/admin/files` to staff with `files.view_own`; uploading also requires `files.upload`. Each account sees only its own uploads, including administrators. The library accepts PDF/JPEG/PNG up to 10 MiB, shows scan status honestly, and downloads through an authenticated, integrity-checked endpoint. Files remain on the hospital server outside public storage. Run the backend migrations and seeder first. Current uploads are not virus-scanned; patient attachments and clinical access rules belong to their later workflows.
+
+## Local staff sign-in
+
+Start the Laravel backend in the sibling `backend` directory with `dev.cmd start`, then run `npm run dev` here and open the printed URL. The tracked development API base is `/api/v1`; Vite proxies it to the local backend on port 8000. Production hosting must route `/api/v1` to Laravel on the hospital server.
+
+Create the first administrator through `dev.cmd artisan staff:create --role=admin` in the backend directory, using your own privately prompted password after running migrations and `db:seed`. No account or password is seeded. Authorized administrators manage staff at `/admin/users`: create/edit profiles, assign departments and roles, activate/deactivate accounts and issue one-use recovery codes. Saves require the administrator's current password. Version conflicts require reloading the latest record.
+
+New accounts choose their first password through `/forgot-password`, using a code issued after administrator identity verification. Codes expire after 15 minutes, work once and are displayed only at issuance. Recovery works through the local server without an email provider. For sole-administrator recovery, the trusted server console provides `dev.cmd artisan staff:recover their-username`. The hospital must approve the identity-verification procedure before production use. Recovery revokes existing sessions; disabled accounts remain disabled.
+
+Sign-in uses HTTP-only Laravel session cookies, CSRF protection and an in-memory identity store. Reload checks the server session; private routes require server-returned roles, and staff management requires `staff.manage` and audit review requires `audit.view`. Profile/module menus provide staff-administration and patient-record entries when permitted. Logout invalidates the server session before reloading sign-in. Local browser storage is not trusted as authentication. Patient, booking, visit and clinical workspaces use saved Laravel records.
+
+Profiles display the current server staff record. Browser-only profile/password edits are removed; profile or access changes go through staff administration. Account, role, permission and department changes clear private forms, patient caches, pending requests and session-owned document URLs. Routine refreshes preserve same-account drafts. Other tabs recheck the server after sign-in, sign-out or recovery, and old browser-history patient state is discarded before rendering. Known legacy private storage keys are removed while unrelated preferences remain.
+
+Run `npm test` for frontend regression checks using Node's test runner and the installed TypeScript compiler. The checks include late old-account responses, stale `401` failures, writes waiting for CSRF, disabled storage, private caches/object-URL revocation, separate audit/staff-management access, patient identity/outcome validation and explicit command confirmations. No additional packages are required. Run `npm run typecheck` for the full repository TypeScript check. `npm run build` runs that check before creating production assets; strict checks remain enabled. Compiler caches stay in ignored `node_modules/.tmp/`.
+
+## Saved clinical screens
+
+Doctors and nurses enter through the patient registry and **Patient visits**, then **Open clinical record** on a saved visit. `/visits/:id/clinical` provides encounter-scoped vitals, published-template/narrative notes, diagnoses, procedures and prescriptions. Role names alone do not grant access: patient/encounter visibility and each clinical or prescribing permission must be explicitly authorized. Closed/cancelled visits are read-only. No default grants are added.
+
+Save a draft first, open it, review the saved values and use **Sign draft** with your current password. Only the author's drafts can be edited/signed. Signed records offer **Review corrections and history**; authorized staff can sign a reasoned replacement or retraction there. Original signed values remain retained. Prescriptions use staff-entered medication snapshots, explicit duration/quantity units and ordered lines. Stopping/completing a signed active prescription creates a signed terminal replacement. Catalogs, dosing recommendations, dispensing and specialist nursing programs remain separate work.
+
+`/patients/:id/history` shows authorized finalized heads across visible visits, with optional superseded predecessors, kind/status filters and pagination. It excludes drafts and preserves each record's encounter/author identity. Private revision snapshots require a separate review permission. Doctor/nurse legacy patient/history URLs redirect to these saved workspaces.
+
+All writes retain expected record/visit versions and a single submission key in memory. An uncertain save freezes submitted fields and offers **Retry same submission**. Leaving the form discards that retry, so review saved records before starting again. Responses must confirm the selected patient, encounter, kind, author, version and submitted values. Hospital date controls explicitly use Africa/Lagos, preserving untouched seconds/microseconds. Forms, signatures and results are cleared on account/access changes; clinical values and passwords are never persisted to browser storage.
+
+Task 28 verification: all eighty-nine frontend tests, focused lint, strict TypeScript and the production build passed. Thirty-two real-session browser checks passed across main/follow-up runs against isolated MySQL records, including two patients, concurrent staff, immutable signed records, lost-response confirmation, stale versions, permissions, handover, pagination, restrictions and cross-tab logout. Browser page errors were zero; desktop/mobile records and a mobile prescription form were visually inspected. Synthetic data/credentials and owned previews were cleared. No dependencies or default permissions changed; hospital clinical/template acceptance remains pending.
+
+Task 12 verification: eleven frontend tests and twenty-five browser checks pass, including multi-tab account changes, history isolation, expiry and staff administration/recovery. The production build passes.
+
+Task 13 verification: twelve frontend tests and thirty-nine browser checks pass, including the audit viewer, reviewer-only access and permission revocation. The production build passes.
+
+Task 14 verification: seventeen frontend tests and fifty-two browser checks pass, including real private-file uploads/downloads, byte comparison, ownership, read-only roles, permission revocation and mobile layouts. The production build passes.
+
+TypeScript follow-up: all 125 previously reported errors have been resolved. Fixes cover stale copied-screen imports, navigation icon props, form component contracts, React effect cleanup, nullable medication prices, typed report rows and mock record IDs. Legacy registration-step URLs enter the state-owning registration wizard, and requisition calendars now filter the records. No new packages or relaxed compiler flags are required. Verification: zero TypeScript errors, twenty-one regression tests, fifteen browser checks with no page errors, and a passing production build.
+
+## React + TypeScript + Vite template notes
 
 ## API routing and deployment
 
@@ -68,3 +108,50 @@ export default tseslint.config({
   },
 })
 ```
+
+
+## Transaction-safe submissions
+
+Staff saves, recovery-code issuance, private uploads and patient commands send an `Idempotency-Key` for one intended submission. A lost connection, timeout, unreadable success response or server failure keeps the attempt in memory. Submitted fields or the selected upload stay fixed while the user explicitly retries; the same key confirms a previously committed result without creating it again. Reauthentication passwords may be reentered without changing that identity. Responses must identify the matching saved resource and version before the UI reports success. No business write is automatically retried.
+
+Recovery issuance returns its secret only once; a retry reports that it was already issued rather than redisplaying or replacing it. Reload the staff record and verify identity before deliberately issuing a replacement. Stale-version conflicts still require reloading the saved record.
+
+Requests and CSRF bootstrap have a 30-second deadline. A timeout or browser cancellation cannot undo a server commit. Server `Retry-After` guidance appears in errors. A full page reload or access boundary clears pending keys and selections; inspect the saved staff/file list before starting another submission. Keys, files and drafts are never persisted in browser storage. New files/forms get new keys, so intentional duplicate-content uploads remain possible.
+
+Run `npm test` for forty-seven frontend checks, including lost-response key preservation, access boundaries, multipart bytes, no automatic replay, malformed confirmations and retry guidance. Run `npm run build` for strict TypeScript checks followed by the production build. See the backend's [transaction and retry contract](https://github.com/TechProoo/easy_care_backend/blob/main/docs/LOCAL_DEVELOPMENT.md#transaction-and-retry-rules) for status codes, database guarantees and the limits of filesystem cleanup.
+
+## Saved patient workspace
+
+`/patients` provides server-filtered, paginated patient search by name/phone, exact current/previous card number, category and birth date. `/patients/register` saves demographics, a staff-entered card number/category and up to ten emergency/next-of-kin contacts. Possible duplicates require explicit review before a separate record is saved. Success appears only after a matching saved ID/version is returned. `/patients/{id}` reloads the saved profile and `/patients/{id}/edit` performs versioned demographic/contact edits. Unknown details remain blank; photos, insurance policies and clinical history are not collected or presented as saved records.
+
+The workspace requires `patients.view` independently of role. Creating/editing and private flag/card/merge/access actions require their specific permissions; no administrator bypass or default patient grants are introduced. Profile menus, shared header search and the frontdesk/doctor/nurse/HMO/diagnostics patient dashboards use the saved registry. Existing profile/flag/history links normalize numeric IDs to the common workspace and ignore navigation-state demographics. Invalid card-style IDs fail closed. Direct legacy success URLs cannot manufacture registration success.
+
+Profile management supports flags and one-time resolution, card/category changes with retained number history, and two-person merge requests/reviews. Sensitive commands require reasons and password reauthentication. `/patients/access` uses a known record ID and returns only access metadata for restrict/restore. Restricted details stay hidden. Approved merged IDs and exact source numbers resolve to the active survivor; editing a merged source requires explicitly opening the survivor first. Merge approval never copies or overwrites demographics.
+
+Patient loads discard late results from older queries/IDs and abort on unmount. The shared session boundary cancels old-account requests and clears private forms, results and retry keys on account/access changes. Patient data, reasons, passwords and drafts are not persisted in browser storage or navigation state. Separate tabs hold separate patient/editor state; logout and account changes trigger the existing cross-tab session recheck. Known conflicts require reviewing the latest record; uncertain saves retain unchanged data and the same explicit retry key. A full reload or leaving the form discards that in-memory attempt, so inspect saved records before resubmitting.
+
+See the backend's [patient contract](https://github.com/TechProoo/easy_care_backend/blob/main/docs/LOCAL_DEVELOPMENT.md#patient-record-management). Hospital acceptance, the final clinical permission matrix, emergency access, clinical documentation and insurance remain later tasks.
+
+Task 20 verification on 11 November 2026: all 47 frontend tests passed, including 21 new patient checks. Strict TypeScript and the production build passed. Twenty-eight browser checks passed with no page errors, exercising real Laravel sessions, saved records and interrupted responses across independent staff sessions/tabs. Coverage includes registration/refresh, duplicate review, stale edits, search races, direct/canonical IDs, ignored navigation snapshots, flags, card history, restrictions, independent merge approval, read-only/custom roles, mobile profile/editor layouts, cross-tab account changes and permission revocation. Synthetic browser data was confined to the disposable test database; no patient-access grants or sample records were added to development.
+
+
+Task 22 adds appointment actions and an Appointment record-type filter to the audit viewer. The general audit shows only saved record/version references; private booking contacts, times, reasons and snapshots require the separate appointment API permissions. The backend now provides booking/update/history APIs with Africa/Lagos calendar dates and clinician interval protection. Task 24 connects the saved booking, arrival and queue screens described below.
+
+Task 23 adds Visit audit labels and record filtering for arrival, clinician assignment/reassignment, acceptance, completion and cancellation. Audit access exposes only saved record/version references. The backend now supplies verified arrival/walk-in, scoped queues and versioned clinician workflow APIs with one current clinician and retained history. Frontdesk and clinician booking/queue screens are connected in Task 24; see the [visit API contract](https://github.com/TechProoo/easy_care_backend/blob/main/docs/LOCAL_DEVELOPMENT.md#arrival-clinician-assignment-and-queue-apis).
+
+Task 23 verification on 11 November 2026: all 47 frontend tests, strict TypeScript and the production build passed. Eleven real-session browser checks passed with no page errors, including desktop/mobile Visit audit filtering and a complete saved arrival, assignment, handover, acceptance and completion flow through separate staff sessions. General audit results contain no private patient identities or care reasons; disposable browser records were cleared.
+
+
+## Saved bookings and clinician visits
+
+Task 24 replaces the frontdesk booking, visitation and clinician-assignment demonstrations with saved Laravel records. The clinician dashboard and `/doctor/visits` show the signed-in doctor's current queue. Shared `/appointments` and `/visits` workspaces are also available to custom-role staff with the relevant explicit permissions; the staff access page and patient profiles provide links.
+
+Create bookings before registration or select a saved patient, search/page/filter saved bookings, edit/reschedule, confirm, cancel, mark an elapsed no-show, review private revisions and create a follow-up from an attended booking. `/appointments/{id}` records a verified arrival against the selected registered identity and opens the saved visit. `/visits/new` records verified walk-ins. `/visits/{id}` supports clinician assignment/reassignment, acceptance and completion by the current doctor, cancellation before care is accepted, retained assignment history and private visit revisions. Clinician display names identify related staff without granting staff-directory access. Clinical documentation storage is Task 25.
+
+Inputs and displays use Africa/Lagos, independently of the computer timezone. Unchanged booking intervals retain their original seconds/microseconds when other details are edited. Patient/card selection comes from the saved registry, with explicit identity acknowledgment at arrival. Caller contacts remain an independent booking snapshot. Queues and registers use server scopes, filters and pagination; a clinician cannot select another clinician's visit by changing its URL.
+
+Forms require the action's permissions and saved versions. Success requires a matching saved record and state. Uncertain saves keep the unchanged payload and command key in memory for explicit retry, with fields frozen; no write is automatically retried. Conflicts require reloading the latest record. Account/access changes, sign-out across tabs and leaving a form clear its private state and retry. Check saved records before starting another submission after refreshing or leaving an uncertain form. Drafts, reasons, selections and retry keys are never stored in browser storage.
+
+The existing purple/white layout is retained, with mobile forms and horizontally scrollable record tables. Frontdesk routes are `/frontdesk/book-appointment`, `/frontdesk/visitation-log` and `/frontdesk/doctor-assignments`; shared details live under `/appointments/{id}` and `/visits/{id}`. See the [saved-screen contract](https://github.com/TechProoo/easy_care_backend/blob/main/docs/LOCAL_DEVELOPMENT.md#saved-booking-and-clinician-screens) for routes, isolation, read permissions and retry behavior. No production sample records or permission grants are added.
+
+Task 24 verification on 11 November 2026: 69 frontend tests passed (22 new workflow/client checks), with strict TypeScript and a successful production build. Twenty-eight real-session browser checks passed with no page errors, covering the full booking/arrival/assignment/handover/completion flow, interrupted responses, same-key confirmation, stale tabs, scopes, restrictions, pagination, read-only/custom roles, permissions and cross-tab logout. Fully loaded desktop/mobile booking and visit captures were inspected. The 97 affected backend API checks also passed on both MySQL and SQLite. Temporary previews and disposable test records/credentials were cleared. Next is Task 25: encounter-scoped clinical storage.

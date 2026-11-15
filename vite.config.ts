@@ -5,12 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    proxy: {
-      '/api/v1': {
-        target: 'https://easycare-backend-main-6bndgf.laravel.cloud',
-        changeOrigin: true,
-      },
-    },
+    proxy: { '/api': { target: process.env.EASYCARE_API_TARGET || 'http://127.0.0.1:8000', changeOrigin: true } },
   },
   define: {
     'process.env': {},

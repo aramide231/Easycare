@@ -14,12 +14,14 @@ import {
 
 export type NavItem = {
   label: string;
-  icon: ElementType<{ className?: string; strokeWidth?: number }>;
+  icon: ElementType<{ className?: string; strokeWidth?: string | number }>;
   link: string;
 };
 
 export const MAIN_MENU: NavItem[] = [
   { label: "Dashboard", icon: DashboardLayoutIcon, link: "/doctor" },
+  { label: "My Visit Queue", icon: Activity, link: "/doctor/visits" },
+  { label: "Patient Registry", icon: ReceiptIcon, link: "/patients" },
 ];
 
 export const PATIENT_MANAGEMENT: NavItem[] = [

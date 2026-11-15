@@ -1,0 +1,30 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { AUTH_SIGNIN_PATH } from "@/lib/authRoutes";
+
+export default function AccountAccess({ recovery = false }: { recovery?: boolean }) {
+  const { user, signOut } = useAuth();
+  const canViewPatients = user?.permissions?.includes("patients.view") ?? false;
+  const canBook = user?.permissions?.includes("appointments.view") ?? false;
+  const canVisit = !!user?.permissions?.includes("encounters.view") && canViewPatients;
+  const hasWorkspace = canViewPatients || canBook || canVisit;
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const logout = async () => {
+    setBusy(true);
+    try { await signOut(); }
+    catch { setError("Unable to sign out. Check your connection and try again."); }
+    finally { setBusy(false); }
+  };
+  return <main className="mx-auto max-w-lg p-10 text-center">
+    <h1 className="text-xl font-bold">{recovery ? "Account recovery" : hasWorkspace ? "Your staff workspace" : "Staff access pending"}</h1>
+    <p className="my-4">{recovery ? "Contact your hospital administrator for password recovery." : hasWorkspace ? "Open the saved hospital records available to your account." : "Your account has no assigned module. Contact your hospital administrator to arrange access."}</p>
+    {!recovery && canViewPatients && <Link className="mb-5 inline-block rounded bg-purple-700 px-5 py-3 text-white" to="/patients">Open patient records</Link>}
+    {!recovery && canBook && <Link className="mb-5 ml-3 inline-block rounded bg-purple-700 px-5 py-3 text-white" to="/appointments">Open bookings</Link>}
+    {!recovery && canVisit && <Link className="mb-5 ml-3 inline-block rounded bg-purple-700 px-5 py-3 text-white" to="/visits">Open visits and queues</Link>}
+    {error && <p role="alert" className="mb-4 text-red-700">{error}</p>}
+    {user ? <button disabled={busy} className="rounded bg-purple-700 px-5 py-3 text-white" onClick={() => void logout()}>{busy ? "Signing out..." : "Sign out"}</button>
+      : <Link className="text-purple-700 underline" to={AUTH_SIGNIN_PATH}>Return to sign in</Link>}
+  </main>;
+}
