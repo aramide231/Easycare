@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { getRoleHomePath } from "@/lib/authRoutes";
+import { IS_DEMO } from "@/config/dataSource";
+import DemoSignIn from "@/demo/DemoSignIn";
 
 // Define the form data structure
 interface FormData {
@@ -33,6 +35,8 @@ const Signin = () => {
       setServerError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
     }
   };
+
+  if (IS_DEMO) return <DemoSignIn />;
 
   return (
     <div>

@@ -9,25 +9,28 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const modules = new Map();
 
 /** Loads production TS through the existing compiler; no browser-test framework is required. */
-export function loadSource(relative) {
+export function loadSource(relative, dataSource = "backend") {
   let filename = resolve(root, relative);
   if (!existsSync(filename)) {
     filename = [filename + ".ts", filename + ".tsx"].find(existsSync);
   }
   if (!filename) throw new Error("Source module not found: " + relative);
-  if (modules.has(filename)) return modules.get(filename).exports;
+  const moduleKey = filename + ":" + dataSource;
+  if (modules.has(moduleKey)) return modules.get(moduleKey).exports;
   const module = { exports: {} };
-  modules.set(filename, module);
-  const source = readFileSync(filename, "utf8").replaceAll("import.meta.env.VITE_API_BASE_URL", '"/api/v1"');
+  modules.set(moduleKey, module);
+  const source = readFileSync(filename, "utf8")
+    .replaceAll("import.meta.env.VITE_API_BASE_URL", '"/api/v1"')
+    .replaceAll("import.meta.env.VITE_DATA_SOURCE", JSON.stringify(dataSource));
   const output = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
     fileName: filename,
   }).outputText;
   const requireSource = (specifier) => {
-    if (specifier.startsWith("@hmo/")) return loadSource("src/modules/hmo/" + specifier.slice(5));
-    if (specifier.startsWith("@/")) return loadSource("src/" + specifier.slice(2));
-    if (specifier.startsWith("@doctor-shared/")) return loadSource("src/pages/doctor/shared/" + specifier.slice(15));
-    if (specifier.startsWith(".")) return loadSource(resolve(dirname(filename), specifier));
+    if (specifier.startsWith("@hmo/")) return loadSource("src/modules/hmo/" + specifier.slice(5), dataSource);
+    if (specifier.startsWith("@/")) return loadSource("src/" + specifier.slice(2), dataSource);
+    if (specifier.startsWith("@doctor-shared/")) return loadSource("src/pages/doctor/shared/" + specifier.slice(15), dataSource);
+    if (specifier.startsWith(".")) return loadSource(resolve(dirname(filename), specifier), dataSource);
     return requirePackage(specifier);
   };
   new Function("require", "module", "exports", output)(requireSource, module, module.exports);

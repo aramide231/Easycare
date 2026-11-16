@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/store/useAuthStore";
 import { registerSessionCleanup } from "@/lib/sessionScope";
+import { IS_DEMO } from "@/config/dataSource";
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
 let csrfToken: string | null = null;
@@ -49,6 +50,10 @@ function retryAfter(response: Response): number | undefined {
 
 async function fetchFromServer(url: string, options: RequestInit): Promise<Response> {
   try {
+    if (IS_DEMO) {
+      const { demoFetch } = await import("@/demo/transport");
+      return await demoFetch(url, options);
+    }
     return await fetch(url, options);
   } catch (cause) {
     if (options.signal?.aborted || (cause instanceof DOMException && cause.name === "AbortError")) {

@@ -1,12 +1,14 @@
 # EasyCare frontend
 
+The default is a disconnected dummy-data preview. See [Disconnected demo and future API connection](#disconnected-demo-and-future-api-connection) for setup. The saved-record workflows below describe the prepared backend integration and earlier verification; they contact Laravel only after backend mode and routing are explicitly enabled.
+
 The read-only audit viewer is available at `/admin/audit` to staff with `audit.view`. It filters staff/security activity by action, outcome, source, actor/record IDs and UTC dates. Pagination retains the current history boundary; Refresh includes new activity. Reviewers can access this screen without staff-management permission. Run the backend migrations and seeder for the independent audit grant baseline before using it. Audit history does not display submitted credentials or personal profile values.
 
 Private files are available at `/admin/files` to staff with `files.view_own`; uploading also requires `files.upload`. Each account sees only its own uploads, including administrators. The library accepts PDF/JPEG/PNG up to 10 MiB, shows scan status honestly, and downloads through an authenticated, integrity-checked endpoint. Files remain on the hospital server outside public storage. Run the backend migrations and seeder first. Current uploads are not virus-scanned; patient attachments and clinical access rules belong to their later workflows.
 
-## Local staff sign-in
+## Prepared backend staff sign-in
 
-Start the Laravel backend in the sibling `backend` directory with `dev.cmd start`, then run `npm run dev` here and open the printed URL. The tracked development API base is `/api/v1`; Vite proxies it to the local backend on port 8000. Production hosting must route `/api/v1` to Laravel on the hospital server.
+After enabling backend mode as described below, start the Laravel backend in the sibling `backend` directory with `dev.cmd start`, then run `npm run dev` here and open the printed URL. The tracked development API base is `/api/v1`; Vite proxies it to the local backend on port 8000. Production hosting must route `/api/v1` to Laravel on the hospital server.
 
 Create the first administrator through `dev.cmd artisan staff:create --role=admin` in the backend directory, using your own privately prompted password after running migrations and `db:seed`. No account or password is seeded. Authorized administrators manage staff at `/admin/users`: create/edit profiles, assign departments and roles, activate/deactivate accounts and issue one-use recovery codes. Saves require the administrator's current password. Version conflicts require reloading the latest record.
 
@@ -38,27 +40,29 @@ Task 14 verification: seventeen frontend tests and fifty-two browser checks pass
 
 TypeScript follow-up: all 125 previously reported errors have been resolved. Fixes cover stale copied-screen imports, navigation icon props, form component contracts, React effect cleanup, nullable medication prices, typed report rows and mock record IDs. Legacy registration-step URLs enter the state-owning registration wizard, and requisition calendars now filter the records. No new packages or relaxed compiler flags are required. Verification: zero TypeScript errors, twenty-one regression tests, fifteen browser checks with no page errors, and a passing production build.
 
+## Disconnected demo and future API connection
+
+The frontend currently runs with **dummy data and no backend connection**. `VITE_DATA_SOURCE=demo` is checked in and is also the default when the setting is absent. Choose a sample role on the sign-in screen, or use the demo workspace selector at the bottom of the app. No real account is needed. Use `demo-only` in password-confirmation fields. Use fictional data only.
+
+Patient records, bookings, visits, clinical notes, admissions, wards, care programs and administration use a local in-memory demo transport. Changes remain in the current tab and reset on reload or **Reset demo**. The selected demo role is the only demo preference saved in session storage. Existing module-specific sample dashboards remain available. Unsupported demo actions show a local message and never fall through to the backend. Demo behavior is for interface previews; it does not establish clinical approval, enforce production hospital policy or replace backend workflow tests.
+
+The persistent demo banner identifies the sample workspace. The normal API client, session handling, response validation and backend endpoints remain available for later integration. Backend mode never falls back to dummy data when an API request fails. The default Vercel configuration serves only the frontend; it has no external API rewrite. The local Vite backend proxy is also off in demo mode.
+
+When the backend is ready, reconnect explicitly:
+
+1. Set `VITE_DATA_SOURCE=backend` and `VITE_API_BASE_URL=/api/v1` for that build. In Vercel, check the project's environment settings and redeploy after changing them.
+2. For local integration, set `EASYCARE_API_TARGET=http://127.0.0.1:8000` (or the intended local API). Vite enables the development proxy only in backend mode.
+3. For Vercel integration, review the inactive `vercel.backend.json` template, confirm its backend hostname, and copy its routing into `vercel.json`. The template is not active automatically. Changing only the data-source setting does not enable hosted forwarding.
+4. Resolve the backend Cloudflare/security block, then verify CSRF bootstrap, sign-in, `/auth/me`, sign-out, session cookies, patient isolation and private downloads through the proxy. A signed-out session check should return JSON `401`; a signed-in check should return JSON `200`.
+5. Verify every integrated screen against real saved records and hospital permissions before release. Dummy records are never imported into MySQL.
+
+The frontend's browser API path remains `/api/v1`. The backend retains its own CORS origin allowlist and session/CSRF protections. No Cloudflare rules or backend authentication controls are changed by demo mode.
+
+Run `npm test` to check both the prepared backend client contracts and the disconnected sample transport. `npm run build` runs strict TypeScript and creates the frontend build.
+
+Disconnected preview verification: all 110 frontend tests passed, including eleven demo transport/configuration cases; strict TypeScript, production build and focused lint passed. Twenty-three real-browser checks covered all seven roles, patient/booking/visit/clinical screens, wards/admissions/care programs, administration, reload/reset and desktop/mobile views, with zero backend requests and zero page errors. These are preview checks; live backend integration and hospital acceptance remain pending.
+
 ## React + TypeScript + Vite template notes
-
-## API routing and deployment
-
-Use `VITE_API_BASE_URL=/api/v1` locally and in the Vercel project's environment
-settings. Vercel environment settings override the value in `.env`; redeploy
-after changing them.
-
-`vercel.json` forwards `/api/v1/*` to the configured Laravel backend before
-applying the frontend page fallback. Vite uses the same backend through its
-development proxy. If the backend address changes, update both configurations.
-
-Before releasing, verify that the backend actually exposes `/api/v1/auth/me`.
-The public Vercel endpoint must return a JSON session response (or a JSON 401
-for a signed-out user), never `index.html`. Backend access restrictions must
-also allow the proxy requests. The backend path and session behavior could not
-be verified during this change because its Cloudflare layer returned 403.
-
-This checkout's authentication differs from the currently deployed site's
-session-based authentication. The routing correction does not migrate the
-local mock authentication or establish compatibility with that backend.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
