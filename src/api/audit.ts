@@ -1,6 +1,17 @@
 import { apiFetch } from "@/api/client/apClient";
 
 export const auditActions = {
+  "investigation.result_created": "Investigation result draft created",
+  "investigation.result_updated": "Investigation result draft updated",
+  "investigation.result_submitted": "Investigation result submitted",
+  "investigation.result_verified": "Investigation result independently verified",
+  "investigation.result_released": "Investigation result released",
+  "investigation.result_amended": "Investigation result correction started",
+  "investigation.result_voided": "Unreleased investigation result withdrawn",
+  "investigation.results_listed": "Investigation results searched",
+  "investigation.result_viewed": "Investigation result viewed",
+  "investigation.result_history_viewed": "Investigation result history viewed",
+  "investigation.result_attachment_download_authorized": "Investigation result attachment download authorized",
   "investigation.requested": "Investigation requested",
   "investigation.collected": "Investigation specimen collected",
   "investigation.processing": "Investigation processing started",
@@ -111,7 +122,7 @@ export interface AuditEvent {
   outcome: "succeeded" | "denied" | "failed";
   channel: "http" | "console";
   actor_id: number | null;
-  subject_type: "staff" | "role" | "audit" | "file" | "patient" | "appointment" | "encounter" | "clinical" | "admission" | "ward" | "bed" | "care_program" | "care_form" | "investigation_test" | "investigation_order";
+  subject_type: "staff" | "role" | "audit" | "file" | "patient" | "appointment" | "encounter" | "clinical" | "admission" | "ward" | "bed" | "care_program" | "care_form" | "investigation_test" | "investigation_order" | "investigation_result";
   subject_id: number | null;
   request_id: string;
   occurred_at: string;
