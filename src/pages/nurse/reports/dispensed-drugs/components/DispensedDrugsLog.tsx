@@ -76,10 +76,8 @@ const DispensedDrugsLog = () => {
   const activeRecords =
     activeTab === "byName" ? filteredVisitRecords : filteredMedicationRows;
 
-  const visitPage = usePaginatedList(filteredVisitRecords);
-  const medicationPage = usePaginatedList(filteredMedicationRows);
-  const { currentPage, setCurrentPage, totalPages } =
-    activeTab === "byName" ? visitPage : medicationPage;
+  const { currentPage, setCurrentPage, totalPages, paginatedItems } =
+    usePaginatedList(activeRecords);
 
   const tabClass = (tab: TabKey) =>
     `rounded-lg px-6 py-2.5 text-sm font-semibold transition ${
@@ -179,9 +177,9 @@ const DispensedDrugsLog = () => {
               )}
             </thead>
             <tbody>
-              {activeRecords.length > 0 ? (
+              {paginatedItems.length > 0 ? (
                 activeTab === "byName" ? (
-                  visitPage.paginatedItems.map(
+                  (paginatedItems as DispensedVisitRecord[]).map(
                     (record, index) => (
                       <tr
                         key={record.id}
@@ -230,7 +228,7 @@ const DispensedDrugsLog = () => {
                     ),
                   )
                 ) : (
-                  medicationPage.paginatedItems.map((record, index) => (
+                  paginatedItems.map((record, index) => (
                     <tr
                       key={record.rowId}
                       className="border-b border-[#D4D4D4] bg-white"

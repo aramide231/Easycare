@@ -3,8 +3,8 @@ import {
   formFieldInputClass,
   formFieldSelectClass,
   formFieldTextareaClass,
-} from "@/pages/doctor/patientProfile/lib/formFieldStyles";
-import { usePendingCategoryDraft } from "@/pages/doctor/patientProfile/hooks/usePendingCategoryDraft";
+} from "../../../lib/formFieldStyles";
+import { usePendingCategoryDraft } from "../../../hooks/usePendingCategoryDraft";
 
 type ClaimAction = "" | "Decline" | "Pend" | "Accept";
 

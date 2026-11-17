@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { categoryComponents, type CategoryFormProps } from "./CategoryRenderer";
+import { categoryComponents } from "./CategoryRenderer";
 import ImmunizationVitalSigns from "./categories/immunization/ImmunizationVitalSigns";
 import GenConsultVitalSigns from "./categories/genConsult/GenConsultVitalSigns";
 import NeoNatalVitalSigns from "./categories/neonatal/NeoNatalVitalSigns";
@@ -9,7 +9,7 @@ import type { SubCategory } from "../config/subCategoryMap";
 
 const healthCategorySectionOverrides: Record<
   string,
-  Record<string, ComponentType<CategoryFormProps>>
+  Record<string, ComponentType>
 > = {
   Immunization: {
     "VITAL SIGNS": ImmunizationVitalSigns,
@@ -28,11 +28,10 @@ const healthCategorySectionOverrides: Record<
 function resolveFormComponent(
   healthCategory: string | null | undefined,
   sectionLabel: string
-): ComponentType<CategoryFormProps> | undefined {
+): ComponentType | undefined {
   const override =
-    healthCategory
-      ? healthCategorySectionOverrides[healthCategory]?.[sectionLabel]
-      : undefined;
+    healthCategory &&
+    healthCategorySectionOverrides[healthCategory]?.[sectionLabel];
   return override ?? categoryComponents[sectionLabel];
 }
 

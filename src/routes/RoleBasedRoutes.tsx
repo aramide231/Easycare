@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import { FrontdeskRoutes, FrontdeskLayout } from "@/modules/frontdesk";
+import BookAppointment from "@/modules/frontdesk/pages/book-appointment/BookAppointment";
 import { HmoRoutes } from "@/modules/hmo";
 import { PharmacyRoutes } from "@/modules/pharmacy";
 import { DiagnosticsRadiologistRoutes } from "@/pages/diagnostics-and-radiologist/routes";
@@ -16,19 +17,46 @@ import ComingSoonPage from "@/components/ui/ComingSoonPage";
 import ReminderPage from "@frontdesk/pages/set-reminder/ReminderPage";
 
 // import Nurse component
+import PatientRecordScope from "@/pages/doctor/patientProfile/components/PatientRecordScope";
 import NurseDashboard from "@/pages/nurse/dashboard/Dashboard";
+import NursePatientProfile from "@/pages/nurse/patient-profile/PatientProfile";
+import NurseFlagProfile from "@/pages/nurse/patient-profile/flag-profile/FlagProfile";
+import NurseAdmission from "@/pages/nurse/patient-management/admission/Admission";
+import NurseAvailableWard from "@/pages/nurse/patient-management/available-ward/AvailableWard";
+import NurseDischarge from "@/pages/nurse/patient-management/discharge/Discharge";
+import NurseAdmissionReport from "@/pages/nurse/reports/admission/AdmissionReport";
+import NurseDischargeReport from "@/pages/nurse/reports/discharge/DischargeReport";
+import NurseChildBirthReport from "@/pages/nurse/reports/child-birth/ChildBirthReport";
+import NurseAnteNatalReport from "@/pages/nurse/reports/ante-natal/AnteNatalReport";
+import NursePostNatalReport from "@/pages/nurse/reports/post-natal/PostNatalReport";
+import NurseFamilyPlanningReport from "@/pages/nurse/reports/family-planning/FamilyPlanningReport";
+import NurseImmunizationReport from "@/pages/nurse/reports/immunization/ImmunizationReport";
 import NurseDispensedDrugsReport from "@/pages/nurse/reports/dispensed-drugs/DispensedDrugsReport";
-import NurseMakeRequest from "@/pages/nurse/makeRequest/MakeRequest";
+import NurseMakeRequest from "@/pages/nurse/perform-action/make-request/MakeRequest";
 import NurseSetReminder from "@/pages/nurse/perform-action/set-reminder/SetReminder";
 import NurseReportWriting from "@/pages/nurse/reports/report-writing/ReportWriting";
 import NurseRequisition from "@/pages/nurse/reports/requisition/Requisition";
+import PreviousPatientRecords from "@/pages/shared/previousPatientRecords/PreviousPatientRecords";
 
 // import doctors (clinician) component from EasyCare-Aramide
 import DoctorDashboard from "@/pages/doctor/dashboard/DoctorDashboard";
 import DoctorNotification from "@/pages/doctor/notifications/DoctorNotifications";
+import DoctorPatientProfile from "@/pages/doctor/patientProfile/PatientProfile";
 import DoctorAccountSettings from "@/pages/doctor/account/AccountSettings";
 import DoctorYourProfile from "@/pages/doctor/account/YourProfile";
+import DoctorFlagProfile from "@/pages/doctor/flag-profile/DoctorFlagProfile";
+import DoctorAdmission from "@/pages/doctor/admission/Admission";
+import DoctorDischarge from "@/pages/doctor/discharge/Discharge";
+import DoctorAdmissionReport from "@/pages/doctor/reports/AdmissionReport";
+import DoctorAnteNatalReport from "@/pages/doctor/reports/AnteNatalReport";
+import DoctorChildBirthReport from "@/pages/doctor/reports/ChildBirthReport";
+import DoctorDischargeReport from "@/pages/doctor/reports/DischargeReport";
+import DoctorFamilyPlanningReport from "@/pages/doctor/reports/FamilyPlanningReport";
+import DoctorImmunizationReport from "@/pages/doctor/reports/ImmunizationReport";
 import DoctorLogsReport from "@/pages/doctor/reports/DoctorLogsReport";
+import DoctorPostNatalReport from "@/pages/doctor/reports/PostNatalReport";
+import DoctorPreviousPatientRecords from "@/pages/doctor/previousPatientRecords/PreviousPatientRecords";
+import DoctorRegistrationReport from "@/pages/doctor/reports/RegistrationReport";
 import DoctorMakeRequest from "@/pages/nurse/makeRequest/MakeRequest";
 
 // import Diagnostics / Laboratory component from EasyCare-Aramide
@@ -41,32 +69,13 @@ import InvestigativeList from "@/pages/diagnostics/investigative-list/Investigat
 import DiagnosticsRequestLogs from "@/pages/diagnostics/request-logs/RequestLogs";
 import InvestigationLogs from "@/pages/diagnostics/investigation-logs/InvestigationLogs";
 import InvestigationProfile from "@/pages/diagnostics/investigation-profile/InvestigationProfile";
-import PatientWorkspace, { PatientRouteRedirect } from "@/components/patient/patientWorkspace";
-import PatientRegistry from "@/pages/patients/PatientRegistry";
-import PatientEditor from "@/pages/patients/PatientEditor";
-import PatientProfile from "@/pages/patients/PatientProfile";
-import PatientAccess from "@/pages/patients/PatientAccess";
-import VisitWorkspace from "@/components/visits/visitWorkspace";
-import Appointments from "@/pages/visits/Appointments";
-import CreateBooking from "@/pages/visits/BookingForm";
-import BookingDetail from "@/pages/visits/BookingDetail";
-import VisitRegister from "@/pages/visits/VisitRegister";
-import VisitDetail from "@/pages/visits/VisitDetail";
-import VisitClinical from "@/pages/visits/VisitClinical";
-import AdmissionDetail, { AdmissionsPage } from "@/pages/visits/Admissions";
-import Wards from "@/pages/visits/Wards";
-import CareProgramDetail, { CareProgramsPage } from "@/pages/visits/CarePrograms";
-import WalkIn from "@/pages/visits/VisitForms";
+import DiagnosticsPatientProfile from "@/pages/diagnostics/patient-profile/DiagnosticsPatientProfile";
+import DiagnosticsPreviousPatientRecords from "@/pages/diagnostics/previous-patient-records/DiagnosticsPreviousPatientRecords";
 
 import AdminDashboard from "@/pages/admin/dashboard/AdminDashboard";
-import PrivateFiles from "@/pages/admin/PrivateFiles";
-import AuditHistory from "@/pages/admin/AuditHistory";
-import StaffAdministration from "@/pages/admin/StaffAdministration";
-import StaffRecovery from "@/pages/auth/components/StaffRecovery";
 import AuthenticationPage from "@/pages/auth/AuthenticationPage";
-import { AuthGuard } from "@/components/guards/AuthGuard";
-import { AUTH_SIGNIN_PATH, getRoleHomePath } from "@/lib/authRoutes";
-import AccountAccess from "@/pages/auth/components/AccountAccess";
+import Verification from "@/pages/auth/components/Verification";
+import ForgotPassword from "@/pages/auth/components/ForgotPassword";
 import PreviewEntry from "@/pages/preview/PreviewEntry";
 
 function AuthLoadingScreen() {
@@ -80,25 +89,17 @@ function AuthLoadingScreen() {
 }
 
 const RoleBasedRoutes = () => {
-  const { user, loading, sessionError, retrySession } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <AuthLoadingScreen />;
   }
 
-  if (sessionError) {
-    return <main className="mx-auto max-w-lg p-10 text-center">
-      <h1 className="text-xl font-bold">Unable to verify your session</h1>
-      <p role="alert" className="my-4">Check your connection to the hospital server and try again.</p>
-      <button className="rounded bg-purple-700 px-5 py-3 text-white" onClick={() => void retrySession()}>Retry connection</button>
-    </main>;
-  }
-
-  const homePath = user ? getRoleHomePath(user.userRole) : AUTH_SIGNIN_PATH;
+  const homePath = "/";
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={homePath} replace />} />
+      <Route path="/" element={<PreviewEntry />} />
 
       <Route
         path="/auth"
@@ -108,55 +109,29 @@ const RoleBasedRoutes = () => {
       />
       <Route
         path="/auth/verification"
-        element={<Navigate to={homePath} replace />}
+        element={user ? <Navigate to={homePath} replace /> : <Verification />}
       />
-      <Route path="/forgot-password" element={<StaffRecovery />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      <Route element={<AuthGuard />}>
-      <Route path="/access-pending" element={<AccountAccess />} />
-      <Route path="/modules" element={<PreviewEntry />} />
-      <Route path="/patients" element={<PatientWorkspace />}>
-        <Route index element={<PatientRegistry />} />
-        <Route path="register" element={<PatientEditor />} />
-        <Route path="access" element={<PatientAccess />} />
-        <Route path=":id" element={<PatientProfile />} />
-        <Route path=":id/edit" element={<PatientEditor editing />} />
-        <Route path=":id/history" element={<PatientProfile historyOnly />} />
-      </Route>
-
-      <Route element={<VisitWorkspace />}>
-        <Route path="/admissions" element={<AdmissionsPage />} />
-        <Route path="/admissions/:id" element={<AdmissionDetail />} />
-        <Route path="/wards" element={<Wards />} />
-        <Route path="/care-programs" element={<CareProgramsPage />} />
-        <Route path="/care-programs/:id" element={<CareProgramDetail />} />
-        <Route path="/appointments" element={<Appointments />} />
-        <Route path="/appointments/new" element={<CreateBooking />} />
-        <Route path="/appointments/:id" element={<BookingDetail />} />
-        <Route path="/visits" element={<VisitRegister />} />
-        <Route path="/visits/new" element={<WalkIn />} />
-        <Route path="/visits/:id" element={<VisitDetail />} />
-        <Route path="/visits/:id/clinical" element={<VisitClinical />} />
-      </Route>
-
-      {/* Frontdesk â€” available for preview without login */}
+      {/* Frontdesk — available for preview without login */}
       {FrontdeskRoutes()}
 
       {/* Frontdesk additional routes */}
       <Route path="/frontdesk" element={<FrontdeskLayout />}>
         <Route
           path="previous-patient-records/:patientId"
-          element={<PatientRouteRedirect suffix="/history" />}
+          element={<PreviousPatientRecords />}
         />
+        <Route path="book-appointment" element={<BookAppointment />} />
       </Route>
 
-      {/* HMO â€” available for preview without login */}
+      {/* HMO — available for preview without login */}
       {HmoRoutes()}
 
-      {/* Pharmacy â€” available for preview without login */}
+      {/* Pharmacy — available for preview without login */}
       {PharmacyRoutes()}
 
-      {/* Diagnostics & Radiologist â€” available for preview without login */}
+      {/* Diagnostics & Radiologist — available for preview without login */}
       {DiagnosticsRadiologistRoutes()}
 
       {/* Nurse */}
@@ -164,69 +139,72 @@ const RoleBasedRoutes = () => {
         <Route index element={<NurseDashboard />} />
         <Route path="dashboard" element={<NurseDashboard />} />
         <Route path="notifications" element={<Notifications />} />
-        <Route path="admission" element={<AdmissionsPage />} />
-        <Route path="available-ward" element={<Wards />} />
-        <Route path="discharge" element={<AdmissionsPage initialStatus="discharged" />} />
+        <Route path="admission" element={<NurseAdmission />} />
+        <Route path="available-ward" element={<NurseAvailableWard />} />
+        <Route path="discharge" element={<NurseDischarge />} />
         <Route path="make-request" element={<NurseMakeRequest />} />
         <Route path="reminder" element={<NurseSetReminder />} />
-        <Route path="reports/admission" element={<AdmissionsPage />} />
-        <Route path="reports/discharge" element={<AdmissionsPage initialStatus="discharged" />} />
-        <Route path="child-birth" element={<CareProgramsPage initialType="delivery" />} />
-        <Route path="ante-natal" element={<CareProgramsPage initialType="antenatal" />} />
-        <Route path="post-natal" element={<CareProgramsPage initialType="postnatal" />} />
-        <Route path="family-planning" element={<CareProgramsPage initialType="family_planning" />} />
-        <Route path="immunization" element={<CareProgramsPage initialType="immunization" />} />
+        <Route path="reports/admission" element={<NurseAdmissionReport />} />
+        <Route path="reports/discharge" element={<NurseDischargeReport />} />
+        <Route path="child-birth" element={<NurseChildBirthReport />} />
+        <Route path="ante-natal" element={<NurseAnteNatalReport />} />
+        <Route path="post-natal" element={<NursePostNatalReport />} />
+        <Route path="family-planning" element={<NurseFamilyPlanningReport />} />
+        <Route path="immunization" element={<NurseImmunizationReport />} />
         <Route path="dispensed-drugs" element={<NurseDispensedDrugsReport />} />
         <Route path="report-writing" element={<NurseReportWriting />} />
         <Route path="requisition" element={<NurseRequisition />} />
         <Route
           path="patient-profile/:id"
           element={
-            <PatientRouteRedirect />
+            <PatientRecordScope>
+              <NursePatientProfile />
+            </PatientRecordScope>
           }
         />
-        <Route path="flag-profile/:id" element={<PatientRouteRedirect />} />
+        <Route path="flag-profile/:id" element={<NurseFlagProfile />} />
         <Route
           path="previous-patient-records/:patientId"
-          element={<PatientRouteRedirect suffix="/history" />}
+          element={<PreviousPatientRecords />}
         />
       </Route>
 
-      {/* Doctor (Clinician) â€” hooked up from EasyCare-Aramide */}
+      {/* Doctor (Clinician) — hooked up from EasyCare-Aramide */}
       <Route path="/doctor" element={<DoctorLayout />}>
         <Route index element={<DoctorDashboard />} />
-        <Route path="visits" element={<VisitRegister initialQueues mineOnly />} />
         <Route path="notifications-doctor" element={<DoctorNotification />} />
         <Route
           path="patient-profile/:id"
           element={
-            <PatientRouteRedirect />
+            <PatientRecordScope>
+              <DoctorPatientProfile />
+            </PatientRecordScope>
           }
         />
         <Route path="account" element={<DoctorAccountSettings />} />
         <Route path="account/profile" element={<DoctorYourProfile />} />
-        <Route path="flag-profile/:id" element={<PatientRouteRedirect />} />
+        <Route path="flag-profile/:id" element={<DoctorFlagProfile />} />
         <Route
           path="previous-patient-records/:patientId"
-          element={<PatientRouteRedirect suffix="/history" />}
+          element={<DoctorPreviousPatientRecords />}
         />
-        <Route path="admission" element={<AdmissionsPage />} />
-        <Route path="available-ward" element={<Wards />} />
+        <Route path="admission" element={<DoctorAdmission />} />
+        <Route path="available-ward" element={<NurseAvailableWard />} />
         <Route path="dispensed-drugs" element={<NurseDispensedDrugsReport />} />
-        <Route path="discharge" element={<AdmissionsPage initialStatus="discharged" />} />
+        <Route path="discharge" element={<DoctorDischarge />} />
         <Route path="make-request" element={<DoctorMakeRequest />} />
         <Route path="set-reminder" element={<ReminderPage />} />
-        <Route path="reports/admission" element={<AdmissionsPage />} />
-        <Route path="reports/discharge" element={<AdmissionsPage initialStatus="discharged" />} />
+        <Route path="reports/admission" element={<DoctorAdmissionReport />} />
+        <Route path="reports/discharge" element={<DoctorDischargeReport />} />
         <Route path="doctor-logs" element={<DoctorLogsReport />} />
-        <Route path="immunization" element={<CareProgramsPage initialType="immunization" />} />
-        <Route path="ante-natal" element={<CareProgramsPage initialType="antenatal" />} />
-        <Route path="child-birth" element={<CareProgramsPage initialType="delivery" />} />
-        <Route path="post-natal" element={<CareProgramsPage initialType="postnatal" />} />
-        <Route path="registration-log" element={<PatientRegistry />} />
+        <Route path="immunization" element={<DoctorImmunizationReport />} />
+        <Route path="ante-natal" element={<DoctorAnteNatalReport />} />
+        <Route path="child-birth" element={<DoctorChildBirthReport />} />
+        <Route path="post-natal" element={<DoctorPostNatalReport />} />
+        <Route path="registration-log" element={<DoctorRegistrationReport />} />
         <Route
           path="family-planning"
-          element={<CareProgramsPage initialType="family_planning" />}
+          element={<DoctorFamilyPlanningReport />}
         />
         <Route
           path="report-writing"
@@ -238,7 +216,7 @@ const RoleBasedRoutes = () => {
         />
       </Route>
 
-      {/* Diagnostics / Laboratory â€” hooked up from EasyCare-Aramide */}
+      {/* Diagnostics / Laboratory — hooked up from EasyCare-Aramide */}
       <Route path="/diagnostics" element={<DiagnosticsLayout />}>
         <Route index element={<DiagnosticsDashboard />} />
         <Route path="notifications" element={<DiagnosticsNotifications />} />
@@ -250,11 +228,11 @@ const RoleBasedRoutes = () => {
         <Route path="investigation-logs" element={<InvestigationLogs />} />
         <Route
           path="patient-profile/:id"
-          element={<PatientRouteRedirect />}
+          element={<DiagnosticsPatientProfile />}
         />
         <Route
           path="previous-patient-records/:id"
-          element={<PatientRouteRedirect suffix="/history" />}
+          element={<DiagnosticsPreviousPatientRecords />}
         />
         <Route
           path="investigation-profile/:id"
@@ -263,13 +241,12 @@ const RoleBasedRoutes = () => {
       </Route>
 
       {/* Admin */}
+      {user?.userRole === "admin" && (
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<StaffAdministration />} />
-          <Route path="audit" element={<AuditHistory />} />
-          <Route path="files" element={<PrivateFiles />} />
+          <Route path="users" element={<div>User Management</div>} />
         </Route>
-      </Route>
+      )}
 
       <Route path="*" element={<Navigate to={homePath} replace />} />
     </Routes>

@@ -3,13 +3,13 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { getRoleHomePath } from "@/lib/authRoutes";
 
 export const GuestGuard = () => {
-  const isAuthenticated = useAuthStore((state) => state.status === "authenticated");
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const apiUser = useAuthStore((state) => state.user);
   const location = useLocation();
 
   const from =
     location.state?.from?.pathname ||
-    getRoleHomePath(apiUser?.roles[0]?.code ?? "");
+    getRoleHomePath(apiUser?.user_role ?? "frontdesk");
 
   if (isAuthenticated) {
     return <Navigate to={from} replace />;

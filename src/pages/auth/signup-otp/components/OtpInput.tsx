@@ -1,11 +1,11 @@
-import { useState, useRef, type FC, type ChangeEvent, type KeyboardEvent } from "react";
+import React, { useState, useRef, KeyboardEvent } from "react";
 
 interface OtpInputProps {
   length?: number;
   onComplete: (otp: string) => void;
 }
 
-export const OtpInput: FC<OtpInputProps> = ({
+export const OtpInput: React.FC<OtpInputProps> = ({
   length = 6,
   onComplete,
 }) => {
@@ -13,7 +13,7 @@ export const OtpInput: FC<OtpInputProps> = ({
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>,
     index: number,
   ) => {
     const value = e.target.value;

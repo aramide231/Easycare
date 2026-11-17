@@ -6,18 +6,19 @@ import { getRoleHomePath } from "@/lib/authRoutes";
 
 import Logo from "@/assets/icon/Frame 121.svg";
 import Signin from "./components/Signin.tsx";
+import Signup from "./components/Signup.tsx";
 import hospitalIcon from "@/assets/icon/Frame 5.svg";
 import ImageCarousel from "@/components/ui/carousel";
 
 const AuthenticationPage = () => {
-  const [activeTab, setActiveTab] = useState<"Signup" | "Signin">("Signin");
+  const [activeTab, setActiveTab] = useState<"Signup" | "Signin">("Signup");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    setActiveTab(params.get("tab") === "signup" ? "Signup" : "Signin");
+    setActiveTab(params.get("tab") === "signin" ? "Signin" : "Signup");
   }, [location.search]);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ const AuthenticationPage = () => {
               </h4>
               <p className="text-xs text-gray-500">
                 {activeTab === "Signup"
-                  ? "Request a staff account from your administrator"
+                  ? "Optimize Patient Care — Sign Up in a Minute"
                   : "Access your hospital dashboard instantly"}
               </p>
             </div>
@@ -89,7 +90,7 @@ const AuthenticationPage = () => {
                     : "text-gray-600 hover:text-[#573FD1]"
                 }`}
               >
-                {tab === "Signup" ? "Request Account" : "Sign In"}
+                {tab === "Signup" ? "Sign Up" : "Sign In"}
               </button>
             ))}
           </div>
@@ -102,7 +103,7 @@ const AuthenticationPage = () => {
             transition={{ duration: 0.4 }}
             className="flex-1 overflow-y-auto scrollbar-hide min-h-0"
           >
-            {activeTab === "Signup" ? <p className="text-sm text-gray-700">Contact your hospital administrator to create your staff account and assign access.</p> : <Signin />}
+            {activeTab === "Signup" ? <Signup /> : <Signin />}
           </motion.div>
         </div>
       </motion.div>

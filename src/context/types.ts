@@ -1,11 +1,9 @@
 import { ReactNode } from "react";
+import { PatientData } from "@/types/patient";
 
 export interface User {
-  id?: number;
   fullName: string;
   userRole: string;
-  roles?: string[];
-  permissions?: string[];
 }
 
 export interface SignupData {
@@ -28,10 +26,9 @@ export interface AuthContextType {
   loading: boolean;
   signup: (data: SignupData) => Promise<void>;
   signIn: (username: string, password: string) => Promise<User | null>;
-  signOut: () => Promise<void>;
+  signOut: () => void;
+  creationOfPatient: (patient: PatientData) => void;
   updateSessionUser: (user: User) => void;
-  sessionError: string | null;
-  retrySession: () => Promise<void>;
 }
 
 export type AuthProviderProps = { children: ReactNode };

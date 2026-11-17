@@ -1,9 +1,11 @@
 import { Outlet } from "react-router-dom";
+import { PatientManagementProvider } from "@/pages/nurse/shared/context/PatientManagementContext";
 import Sidebar from "./nurse/components/Sidebar";
 import Topbar from "./nurse/components/Topbar";
 
 const NurseLayout = () => {
   return (
+    <PatientManagementProvider>
       <div className="flex h-screen w-full overflow-hidden bg-gray-50/30">
         <aside className="hidden md:flex h-screen shrink-0 overflow-hidden flex-col">
           <Sidebar />
@@ -16,6 +18,7 @@ const NurseLayout = () => {
           </div>
         </main>
       </div>
+    </PatientManagementProvider>
   );
 };
 

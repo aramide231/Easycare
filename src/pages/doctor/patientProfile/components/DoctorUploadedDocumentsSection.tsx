@@ -1,4 +1,3 @@
-import { createSessionObjectUrl } from "@/lib/sessionScope";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Upload, FileText, Image, X } from "lucide-react";
 import { useAuth } from "@doctor-shared/context/useAuth";
@@ -94,6 +93,7 @@ function getFileIcon(fileName: string, fileType: string) {
 }
 
 const DoctorUploadedDocumentsSection = ({
+  patientName,
   patientId,
   phoneNumber,
   figmaLayout = false,
@@ -220,7 +220,7 @@ const DoctorUploadedDocumentsSection = ({
       uploadDate: formatUploadDate(now),
       uploadTime: formatUploadTime(now),
       uploadedBy: user?.fullName ?? "Unknown User",
-      objectUrl: createSessionObjectUrl(item.file),
+      objectUrl: URL.createObjectURL(item.file),
     }));
 
     setDocuments((prev) => [...newEntries, ...prev]);
@@ -306,7 +306,7 @@ const DoctorUploadedDocumentsSection = ({
             Click to browse or drag and drop one or more files here
           </p>
           <p className="mt-3 text-xs text-gray-400">
-            JPEG, PNG, or PDF â€” max 3MB each
+            JPEG, PNG, or PDF — max 3MB each
           </p>
         </button>
       ) : (
@@ -382,7 +382,7 @@ const DoctorUploadedDocumentsSection = ({
               className="flex-1 rounded-lg bg-[#573FD1] py-3 text-sm font-medium text-white hover:bg-[#4a35b8] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploading
-                ? "Uploadingâ€¦"
+                ? "Uploading…"
                 : `Upload ${pendingUploads.length} file${
                     pendingUploads.length === 1 ? "" : "s"
                   }`}
@@ -495,7 +495,7 @@ const DoctorUploadedDocumentsSection = ({
                                 {doc.displayName}
                               </span>
                               <span className="text-xs text-gray-500">
-                                {doc.fileName} Â· {patientId}
+                                {doc.fileName} · {patientId}
                                 {phoneNumber ? ` | ${phoneNumber}` : ""}
                               </span>
                             </div>

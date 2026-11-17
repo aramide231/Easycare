@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { categoryComponents } from "./CategoryRenderer";
+import ComponentRenderer from "./CategoryRenderer";
 
 type Props = {
   label: string;
@@ -8,7 +8,6 @@ type Props = {
 
 const SubCategoryRenderer = ({ label }: Props) => {
   const [open, setOpen] = useState(false);
-  const FormComponent = categoryComponents[label];
 
   return (
     <div className="py-5">
@@ -27,7 +26,7 @@ const SubCategoryRenderer = ({ label }: Props) => {
 
       {open && (
         <div className="p-4 bg-gray-50">
-          {FormComponent ? <FormComponent /> : <p>Form for this section is not available yet.</p>}
+          <ComponentRenderer label={label} />
         </div>
       )}
     </div>

@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from "react";
-import { registerSessionCleanup } from "@/lib/sessionScope";
 import type { GenConsultPatientTypeId } from "../config/genConsultPatientTypes";
 import {
   isAdmittedInPatientType,
@@ -26,10 +25,6 @@ let session: GenConsultSession = {
 };
 
 const listeners = new Set<() => void>();
-
-registerSessionCleanup(() => {
-  session = { active: false, patientTypeId: null, consultationTypeId: null };
-});
 
 function emit() {
   listeners.forEach((listener) => listener());

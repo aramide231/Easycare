@@ -18,7 +18,7 @@ import {
 
 export type NavItem = {
   label: string;
-  icon: ElementType<{ className?: string; strokeWidth?: string | number }>;
+  icon: ElementType<{ className?: string; strokeWidth?: number }>;
   link: string;
 };
 

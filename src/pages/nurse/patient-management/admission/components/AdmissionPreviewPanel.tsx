@@ -15,7 +15,6 @@ import {
 } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
 import {
   buildPreviewSectionLines,
-  type PreviewSectionLine,
   sectionSupportsNumberedPreview,
 } from "@/pages/doctor/patientProfile/lib/previewSectionLines";
 
@@ -37,7 +36,7 @@ function FieldRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function TextSectionContent({ fields }: Pick<TreatmentTextSection, "fields">) {
+function TextSectionContent({ fields }: TreatmentTextSection) {
   const midpoint = Math.ceil(fields.length / 2);
   const left = fields.slice(0, midpoint);
   const right = fields.slice(midpoint);
@@ -136,7 +135,7 @@ function LiveRecordSection({
 }) {
   const rows = getSectionTableRows(label);
   const count = getSectionEntryCount(label);
-  const lines: PreviewSectionLine[] = sectionSupportsNumberedPreview(label)
+  const lines = sectionSupportsNumberedPreview(label)
     ? buildPreviewSectionLines(label, rows)
     : rows.slice(0, 8).map((row) => ({
         text: Object.entries(row)

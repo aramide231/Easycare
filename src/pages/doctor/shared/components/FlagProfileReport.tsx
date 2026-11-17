@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { registerSessionCleanup } from "@/lib/sessionScope";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { cn } from "@doctor-shared/lib/utils";
@@ -56,7 +55,6 @@ const SEED_COMMENTS = [
 
 /** Patients whose clinician seed reports have already been loaded this session. */
 const seededPatients = new Set<string>();
-registerSessionCleanup(() => { seededPatients.clear(); });
 
 /**
  * Flag reports for a clinician patient. Uses the shared (nurse) flag store so

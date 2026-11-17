@@ -1,15 +1,16 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  return {
+export default defineConfig({
   plugins: [react()],
   server: {
-    proxy: env.VITE_DATA_SOURCE === 'backend'
-      ? { '/api': { target: env.EASYCARE_API_TARGET || 'http://127.0.0.1:8000', changeOrigin: true } }
-      : undefined,
+    proxy: {
+      '/api/v1': {
+        target: 'https://easycare-backend-main-6bndgf.laravel.cloud',
+        changeOrigin: true,
+      },
+    },
   },
   define: {
     'process.env': {},
@@ -30,6 +31,5 @@ export default defineConfig(({ mode }) => {
         new URL('./src/pages/doctor/shared', import.meta.url),
       ),
     }
-  }
   }
 })

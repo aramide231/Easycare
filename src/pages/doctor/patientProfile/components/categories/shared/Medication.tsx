@@ -322,7 +322,6 @@ export default function Medication() {
       medForm.strength
     );
 
-    const sellingPrice = medForm.sellingPrice;
     const dispenseQty = effectiveQuantity;
     const lineTotal = effectiveAmount;
 
@@ -338,7 +337,7 @@ export default function Medication() {
         interval: getIntervalLabel(medForm.interval),
         period: getPeriodLabel(medForm.period),
         quantity: dispenseQty,
-        sellingPrice,
+        sellingPrice: medForm.sellingPrice,
         lineTotal,
       },
     ]);
