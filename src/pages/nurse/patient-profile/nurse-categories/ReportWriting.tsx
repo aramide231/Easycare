@@ -7,7 +7,10 @@ import {
   useMedicalTable, getPendingSectionEntry, clearPendingSectionEntries,
 } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
 import { usePendingCategoryDraft } from "@/pages/doctor/patientProfile/hooks/usePendingCategoryDraft";
-import NursingDetailsTable from "../components/NursingDetailsTable";
+import CategoryMedicalTable from "@/pages/doctor/patientProfile/components/category/CategoryMedicalTable";
+import {
+  formFieldInputClass, formFieldSelectClass, formFieldTextareaClass,
+} from "@/pages/doctor/patientProfile/lib/formFieldStyles";
 import { nursingReportKey } from "../lib/nursingSections";
 import type { Row } from "../lib/monthlyRecords";
 
@@ -29,52 +32,64 @@ export function ReportWritingScreen({
 }: ScreenProps) {
   const valid = Boolean(report.trim()) && shifts.includes(shift);
   return (
-    <div className="min-w-0 w-full bg-white text-black">
-      {showHeading && <h2 className="mb-2 border-b border-[#71349a] pb-1 text-lg font-bold leading-6">Report Writing</h2>}
-      <form className="px-2 pb-2 sm:px-3" onSubmit={(event) => { event.preventDefault(); if (valid) onSubmit(); }}>
-        <label className="sr-only" htmlFor="nursing-report-text">Report</label>
-        <textarea
-          id="nursing-report-text"
-          className="block h-[120px] min-h-[120px] w-full resize-y rounded-[14px] border border-[#916daa] bg-white px-3 py-3 text-xs leading-5 outline-none placeholder:text-[10px] placeholder:text-[#9a80ab] focus:ring-1 focus:ring-[#916daa]"
-          placeholder="enter report(s) here"
-          value={report}
-          onChange={(event) => onReportChange(event.target.value)}
-        />
-        <div className="mt-2 grid grid-cols-2 items-end gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_9rem_minmax(0,1fr)]">
-          <label className="block w-full max-w-[145px] text-[11px] leading-5">
-            Shift
-            <span className="relative block">
-              <select aria-label="Shift" value={shift} onChange={(event) => onShiftChange(event.target.value)}
-                className="h-8 w-full appearance-none rounded-[3px] border border-[#999] bg-white pl-3 pr-7 text-[11px] text-black outline-none focus:border-[#71349a]"
+    <div className="min-w-0 w-full space-y-6">
+      {showHeading && (
+        <div className="border-b-2 border-[#573FD1]">
+          <h2 className="inline-block rounded-t-md bg-[#573FD1] px-4 py-2 text-xs font-bold uppercase tracking-wide text-white">
+            Report Writing
+          </h2>
+        </div>
+      )}
+      <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); if (valid) onSubmit(); }}>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="nursing-report-text">Report</label>
+          <textarea
+            id="nursing-report-text"
+            className={`${formFieldTextareaClass} min-h-[180px]`}
+            placeholder="Enter report(s) here"
+            value={report}
+            onChange={(event) => onReportChange(event.target.value)}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="nursing-report-shift">Shift</label>
+            <div className="relative">
+              <select id="nursing-report-shift" aria-label="Shift" value={shift}
+                onChange={(event) => onShiftChange(event.target.value)}
+                className={`${formFieldSelectClass} pr-10`}
               >
                 <option value="">Select shift</option>
                 {shifts.map((value) => <option key={value}>{value}</option>)}
               </select>
-              <ChevronDown aria-hidden className="pointer-events-none absolute right-3 top-2.5 h-3 w-3" strokeWidth={1.25} />
-            </span>
-          </label>
-          <label className="col-start-2 block w-full max-w-[180px] justify-self-end text-[11px] leading-5 sm:col-start-3">
-            Ward
-            <input aria-label="Assigned ward and bed" readOnly value={ward}
-              className="block h-8 w-full rounded-[3px] border border-[#999] bg-[#aaa] px-2 text-center text-[11px] text-white outline-none"
+              <ChevronDown aria-hidden className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="nursing-report-ward">Ward</label>
+            <input id="nursing-report-ward" aria-label="Assigned ward and bed" readOnly value={ward}
+              className={`${formFieldInputClass} bg-gray-100 text-gray-700`}
             />
-          </label>
+          </div>
+        </div>
+        <div className="flex justify-center pt-2">
           <button type="submit" disabled={!valid}
-            className="col-span-2 row-start-2 mx-auto h-9 w-36 rounded-[5px] bg-[#71349a] text-xl font-medium leading-9 text-white transition hover:bg-[#602982] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#71349a] disabled:cursor-not-allowed sm:col-span-1 sm:col-start-2"
+            className="w-full max-w-xs rounded-lg bg-[#573FD1] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#4a35b8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#573FD1] disabled:cursor-not-allowed disabled:opacity-50"
           >Submit</button>
         </div>
-        {(report.trim() || shift) && !valid && <p role="alert" className="mt-2 text-xs text-amber-700">Enter a report and select a shift before confirming.</p>}
+        {(report.trim() || shift) && !valid && <p role="alert" className="text-sm text-amber-700">Enter a report and select a shift before confirming.</p>}
       </form>
-      <NursingDetailsTable title="Report Writing Details" rows={rows}
+      <CategoryMedicalTable title="Report Writing Details" rows={rows}
         emptyMessage="No nursing reports documented yet."
+        wrapColumns={["report"]}
         columns={[
-          { key: "sn", label: "S/N", className: "w-10 whitespace-nowrap", render: (_, index) => `${index + 1}.` },
-          { key: "dateTime", label: "D | T", className: "w-28 whitespace-nowrap" },
-          { key: "patientType", label: "Px Status", className: "w-24 whitespace-nowrap" },
-          { key: "report", label: "Report", className: "min-w-[180px] max-w-xs whitespace-pre-wrap break-words" },
-          { key: "shift", label: "Shift", className: "w-24 whitespace-nowrap" },
-          { key: "ward", label: "Ward", className: "min-w-[150px] whitespace-nowrap" },
-          { key: "enteredBy", label: "Nurse", className: "min-w-[120px] whitespace-nowrap" },
+          { key: "sn", label: "S/N" },
+          { key: "dateTime", label: "Date | Time" },
+          { key: "patientType", label: "Patient Status" },
+          { key: "report", label: "Report" },
+          { key: "shift", label: "Shift" },
+          { key: "ward", label: "Ward" },
+          { key: "enteredBy", label: "Nurse" },
         ]}
       />
     </div>
