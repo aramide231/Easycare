@@ -1,3 +1,9 @@
+import { useLayoutEffect, useState } from "react";
+import {
+  getNursingSections,
+  nursingReportKey,
+} from "@/pages/nurse/patient-profile/lib/nursingSections";
+import { categoryStorageKey } from "@/pages/doctor/patientProfile/lib/categoryStorage";
 import ModalCloseButton from "@/components/ui/ModalCloseButton";
 import { calculateStayDuration } from "@/lib/dateTime";
 import type { AdmissionRecord } from "../data/mockAdmissions";
@@ -8,8 +14,8 @@ import {
   type TreatmentTableSection,
   type TreatmentTextSection,
 } from "../data/mockTreatmentReview";
-import { getSubCategories } from "@/pages/doctor/patientProfile/config/subCategoryMap";
 import {
+  openPatientRecord,
   getSectionEntryCount,
   getSectionTableRows,
 } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
@@ -129,19 +135,20 @@ function TreatmentSectionBlock({
 
 function LiveRecordSection({
   label,
+  tableKey,
   isFirst = false,
 }: {
   label: string;
+  tableKey: string;
   isFirst?: boolean;
 }) {
-  const rows = getSectionTableRows(label);
-  const count = getSectionEntryCount(label);
+  const rows = getSectionTableRows(tableKey);
+  const count = getSectionEntryCount(tableKey);
   const lines: PreviewSectionLine[] = sectionSupportsNumberedPreview(label)
     ? buildPreviewSectionLines(label, rows)
-    : rows.slice(0, 8).map((row) => ({
+    : rows.map((row) => ({
         text: Object.entries(row)
           .filter(([key]) => !["sn", "id"].includes(key))
-          .slice(0, 4)
           .map(([, value]) => String(value ?? "—"))
           .join(" · "),
       }));
@@ -173,18 +180,31 @@ const AdmissionPreviewPanel = ({
   onClose,
   onConfirm,
 }: Props) => {
-  if (!open) return null;
+  const [recordPatient, setRecordPatient] = useState("");
+  useLayoutEffect(() => {
+    if (open) {
+      openPatientRecord(patient.patientId);
+      setRecordPatient(patient.patientId);
+    }
+  }, [open, patient.patientId]);
+  if (!open || recordPatient !== patient.patientId) return null;
 
   const treatmentReview = getTreatmentReview(patient.treatmentCategory);
   const treatmentLabel = getTreatmentCategoryLabel(patient.treatmentCategory);
-  const liveSections = getSubCategories(patient.treatmentCategory);
+  const liveSections = getNursingSections(patient.treatmentCategory);
+  const storageKey = (label: string) =>
+    label === "REPORT WRITING"
+      ? nursingReportKey(patient.treatmentCategory)
+      : label === "FEEDING CHART"
+        ? "NURSING::FEEDING CHART"
+        : categoryStorageKey(patient.treatmentCategory, label);
   /** Preview should show In-Patient documentation for the active treatment category only. */
   const inPatientSections = liveSections.filter((section) => {
     const label = section.label.toUpperCase();
     return !label.includes("OUT") && label !== "PHARMACY DISPENSE";
   });
   const hasLiveRecords = inPatientSections.some(
-    (section) => getSectionEntryCount(section.label) > 0,
+    (section) => getSectionEntryCount(storageKey(section.label)) > 0,
   );
   const stayDays = calculateStayDuration(
     patient.dateOfAdmission,
@@ -283,6 +303,7 @@ const AdmissionPreviewPanel = ({
                   <LiveRecordSection
                     key={section.label}
                     label={section.label}
+                    tableKey={storageKey(section.label)}
                     isFirst={index === 0}
                   />
                 ))
@@ -307,14 +328,14 @@ const AdmissionPreviewPanel = ({
             onClick={onClose}
             className="rounded-lg border border-gray-300 bg-white px-8 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
           >
-            Cancel
+            Close
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             className="rounded-lg bg-[#573FD1] px-10 py-2.5 text-sm font-semibold text-white hover:bg-[#4a35b0]"
           >
-            Confirm
+            Write Report
           </button>
         </div>
       </aside>

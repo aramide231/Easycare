@@ -76,7 +76,11 @@ const Topbar = () => {
     );
 
     const trailParts =
-      isPatientProfile || isPreviousRecords || /^\/nurse\/flag-profile\/.+/.test(location.pathname) ? pathParts.slice(0, -1) : pathParts;
+      isPatientProfile ||
+      isPreviousRecords ||
+      /^\/nurse\/flag-profile\/.+/.test(location.pathname)
+        ? pathParts.slice(0, -1)
+        : pathParts;
 
     const breadcrumbItems = [
       { name: "Dashboard", path: "/nurse" },
@@ -111,7 +115,9 @@ const Topbar = () => {
               ) : (
                 <span className="truncate capitalize">{crumb.name}</span>
               )}
-              {!isLast && <span className="mx-1 shrink-0 text-gray-400">&gt;</span>}
+              {!isLast && (
+                <span className="mx-1 shrink-0 text-gray-400">&gt;</span>
+              )}
             </span>
           );
         })}
@@ -124,8 +130,8 @@ const Topbar = () => {
       <div
         className={`grid min-h-[84px] w-full items-center gap-4 px-5 py-4 md:gap-6 md:px-8 ${
           isDashboard
-            ? "grid-cols-[42%_1fr_auto]"
-            : "grid-cols-[minmax(0,60%)_1fr_auto]"
+            ? "grid-cols-[minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_auto]"
+            : "grid-cols-[minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_auto]"
         }`}
       >
         <div
@@ -134,21 +140,17 @@ const Topbar = () => {
           }`}
         >
           {isBreadcrumbPage && (
-            <div className="max-w-[10rem] shrink-0 md:max-w-[14rem]">
+            <div className="hidden 2xl:block max-w-[14rem] min-w-0">
               {renderBreadcrumbs()}
             </div>
           )}
 
-          <div
-            className={
-              isDashboard ? "w-full" : "min-w-[16rem] w-full flex-1 md:min-w-[22rem]"
-            }
-          >
+          <div className={isDashboard ? "w-full" : "min-w-0 w-full flex-1"}>
             <HeaderPatientSearch />
           </div>
         </div>
 
-        <div className={`px-2 ${isDashboard ? "flex justify-center" : "justify-self-center"}`}>
+        <div className="hidden px-2 xl:flex xl:justify-center">
           <Clock />
         </div>
 

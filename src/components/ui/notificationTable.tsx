@@ -167,7 +167,7 @@ const NotificationTable: React.FC = () => {
                     <td className="px-4 py-3">
                       <button
                         type="button"
-                        className="text-sm font-medium text-[#573FD1] underline hover:text-[#4a35b8]"
+                        className="rounded-lg border border-[#573FD1] bg-purple-50 px-4 py-3 text-sm font-semibold text-[#573FD1] hover:bg-purple-100"
                         onClick={(e) => {
                           e.stopPropagation();
                           const [firstName, ...rest] = patient.name.split(" ");
@@ -185,7 +185,7 @@ const NotificationTable: React.FC = () => {
                           );
                         }}
                       >
-                        View Px Profile
+                        View Patient Profile
                       </button>
                     </td>
                   </tr>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import ComingSoonPage from "@/components/ui/ComingSoonPage";
@@ -23,6 +23,7 @@ import { PAGE_SIZE } from "@/constant/pagination";
 const AdmissionLog = () => {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const {
     admissions,
     admitPatient,
@@ -320,6 +321,19 @@ const AdmissionLog = () => {
           patient={previewPatient}
           open={Boolean(previewPatient)}
           onClose={() => setPreviewPatient(null)}
+          onConfirm={() =>
+            navigate(`/nurse/patient-profile/${encodeURIComponent(previewPatient.patientId)}`, {
+              state: {
+                writeReport: true,
+                treatmentCategory: previewPatient.treatmentCategory,
+                patient: {
+                  ...previewPatient,
+                  firstName: previewPatient.name.split(" ")[0],
+                  lastName: previewPatient.name.split(" ").slice(1).join(" "),
+                },
+              },
+            })
+          }
         />
       )}
 

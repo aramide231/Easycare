@@ -1,3 +1,10 @@
+import MedicationDetails from "../nurse-categories/MedicationDetails";
+import DispenseHistory from "../nurse-categories/DispenseHistory";
+import ProcedureDetails from "../nurse-categories/ProcedureDetails";
+import ReportWriting from "../nurse-categories/ReportWriting";
+import OutputChart from "../nurse-categories/OutputChart";
+import FeedingChart from "../nurse-categories/FeedingChart";
+import { HealthCategoryContext } from "@/pages/doctor/patientProfile/lib/categoryStorage";
 import { ChevronDown } from "lucide-react";
 import { resolveCategoryForm } from "@/pages/doctor/patientProfile/lib/resolveCategoryForm";
 import type { SubCategory } from "@/pages/doctor/patientProfile/config/subCategoryMap";
@@ -22,11 +29,24 @@ const CategoryFormAccordion = ({
     <div className="flex min-w-0 w-full max-w-full flex-col divide-y divide-gray-200">
       {sections.map((section) => {
         const isOpen = expandedCategories.includes(section.label);
-        const form = resolveCategoryForm(
-          selectedCategory,
-          section.label,
-          "nurse",
-        );
+        const form =
+          section.label === "REPORT WRITING" ? (
+            <ReportWriting category={selectedCategory} />
+          ) : section.label === "OUTPUT CHART" ? (
+            <OutputChart />
+          ) : section.label === "FEEDING CHART" ? (
+            <FeedingChart />
+          ) : section.label === "MEDICATION" ? (
+            <MedicationDetails />
+          ) : section.label === "NURSING DISPENSES" ? (
+            <DispenseHistory />
+          ) : section.label === "PHARMACY DISPENSE" ? (
+            <DispenseHistory pharmacy />
+          ) : section.label === "PROCEDURE" ? (
+            <ProcedureDetails category={selectedCategory ?? null} />
+          ) : (
+            resolveCategoryForm(selectedCategory, section.label, "nurse")
+          );
 
         return (
           <div
@@ -60,11 +80,15 @@ const CategoryFormAccordion = ({
                 className="block min-w-0 w-full max-w-full border-0 p-0 m-0"
                 style={{ minWidth: 0 }}
               >
-                {form ?? (
-                  <p className="px-1 py-2 text-sm text-gray-500">
-                    Form for this section is not available yet.
-                  </p>
-                )}
+                <HealthCategoryContext.Provider
+                  value={selectedCategory ?? null}
+                >
+                  {form ?? (
+                    <p className="px-1 py-2 text-sm text-gray-500">
+                      Form for this section is not available yet.
+                    </p>
+                  )}
+                </HealthCategoryContext.Provider>
               </fieldset>
             </div>
           </div>

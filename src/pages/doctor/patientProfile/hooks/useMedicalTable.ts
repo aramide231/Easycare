@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from "react";
+import { NursingPatientStatusContext, withNursingStatus } from "@/pages/nurse/patient-profile/lib/NursingContext";
+import { useSyncExternalStore, useContext } from "react";
 import { registerSessionCleanup } from "@/lib/sessionScope";
 import { useAuth } from "@doctor-shared/context/useAuth";
 import { DIAGNOSIS_SEED } from "../data/diagnosisSeed";
@@ -97,13 +98,24 @@ const INITIAL_MEDICATION_ROWS: Record<string, unknown>[] = [
 ];
 
 function buildNursingDispensesFromMedication(
-  medRows: Record<string, unknown>[]
+  medRows: Record<string, unknown>[],
 ): Record<string, unknown>[] {
   return medRows
-    .filter((row) => Boolean(row.served) || Boolean(String(row.remark ?? "").trim()))
+    .filter(
+      (row) => Boolean(row.served) || Boolean(String(row.remark ?? "").trim()),
+    )
     .map((row, idx) => ({
       ...row,
       sn: idx + 1,
+      ...(row.nursingRemarkAt
+        ? {
+            nursingSourceKey: `${row.id ?? row.createdAtMs ?? idx}:single`,
+            dateTime: formatMedicalDateTime(
+              new Date(Number(row.nursingRemarkAt)),
+            ),
+            createdAtMs: Number(row.nursingRemarkAt),
+          }
+        : {}),
       remark: String(row.remark || "Served"),
       dispensedBy: String(row.dispensedBy || "—"),
     }));
@@ -174,7 +186,8 @@ const INITIAL_TABLES: Record<string, Record<string, unknown>[]> = {
       dateTime: "15-Feb-2026 01:30 PM",
       patientType: "In-Patient",
       surgeon: "Dr. Adebayo",
-      procedureFindings: "Open appendectomy completed, inflamed appendix excised without perforation.",
+      procedureFindings:
+        "Open appendectomy completed, inflamed appendix excised without perforation.",
       swabCount: "YES",
       bloodLoss: "50 ml",
       bloodPressure: "118/76",
@@ -188,11 +201,14 @@ const INITIAL_TABLES: Record<string, Record<string, unknown>[]> = {
       sn: 1,
       dateTime: "15-Feb-2026 02:00 PM",
       patientType: "In-Patient",
-      ordersNote: "NPO for 6 hours post-op, IV fluids 1L D/S over 8h, monitor vitals q4h, elevate head of bed.",
+      ordersNote:
+        "NPO for 6 hours post-op, IV fluids 1L D/S over 8h, monitor vitals q4h, elevate head of bed.",
       enteredBy: "Dr. Adebayo",
     },
   ],
-  "NURSING DISPENSES": buildNursingDispensesFromMedication(INITIAL_MEDICATION_ROWS),
+  "NURSING DISPENSES": buildNursingDispensesFromMedication(
+    INITIAL_MEDICATION_ROWS,
+  ),
   "PHARMACY DISPENSE": [],
   "NEO NATAL:DIAGNOSIS": [],
   "NEO NATAL:INVESTIGATION": [],
@@ -227,7 +243,10 @@ const PENDING_INCOMPLETE_KEY = "__incomplete__";
 let pendingSectionEntries: Record<string, Record<string, string>> = {};
 const sectionClearListeners = new Map<string, Set<() => void>>();
 
-const patientRecords = new Map<string, { tables: typeof tables; saved: Set<string> }>();
+const patientRecords = new Map<
+  string,
+  { tables: typeof tables; saved: Set<string> }
+>();
 let activePatientId: string | undefined;
 
 registerSessionCleanup(() => {
@@ -240,7 +259,8 @@ registerSessionCleanup(() => {
 });
 
 export function openPatientRecord(patientId: string) {
-  if (activePatientId) patientRecords.set(activePatientId, { tables, saved: userSavedTableKeys });
+  if (activePatientId)
+    patientRecords.set(activePatientId, { tables, saved: userSavedTableKeys });
   const record = patientRecords.get(patientId);
   tables = record?.tables ?? cloneInitialTables();
   userSavedTableKeys = record?.saved ?? new Set();
@@ -264,7 +284,7 @@ function getSnapshot() {
 
 export function setPendingSectionEntry(
   tableKey: string,
-  data: Record<string, string> | null
+  data: Record<string, string> | null,
 ) {
   if (!data) {
     delete pendingSectionEntries[tableKey];
@@ -275,7 +295,7 @@ export function setPendingSectionEntry(
 
 export function subscribeSectionFormClear(
   tableKey: string,
-  listener: () => void
+  listener: () => void,
 ) {
   if (!sectionClearListeners.has(tableKey)) {
     sectionClearListeners.set(tableKey, new Set());
@@ -301,7 +321,7 @@ export function clearPendingSectionEntries(tableKeys: string[]) {
 
 function hasPendingSectionEntry(sectionLabel: string): boolean {
   const data = pendingSectionEntries[sectionLabel];
-  if (!data) return false;
+  if (!data || data[PENDING_INCOMPLETE_KEY]) return false;
 
   if (data[PENDING_BATCH_KEY]) return true;
 
@@ -331,9 +351,7 @@ export function resetUserSavedSections(sectionLabels: string[]) {
   sectionLabels.forEach((label) => userSavedTableKeys.delete(label));
 }
 
-export function getUserSavedSectionLabels(
-  sectionLabels: string[]
-): string[] {
+export function getUserSavedSectionLabels(sectionLabels: string[]): string[] {
   return sectionLabels.filter((label) => userSavedTableKeys.has(label));
 }
 
@@ -342,7 +360,7 @@ export function getSectionEntryCount(sectionLabel: string): number {
 }
 
 export function getSectionTableRows(
-  sectionLabel: string
+  sectionLabel: string,
 ): Record<string, unknown>[] {
   return [...(tables[sectionLabel] ?? [])];
 }
@@ -367,7 +385,7 @@ type PendingDiagnosis = {
 
 export function setPendingDiagnosis(
   entry: PendingDiagnosis | null,
-  key = DIAGNOSIS_TABLE_KEY
+  key = DIAGNOSIS_TABLE_KEY,
 ) {
   setPendingSectionEntry(
     key,
@@ -376,29 +394,29 @@ export function setPendingDiagnosis(
           diagnosis: entry.diagnosis,
           icdDiagnosis: entry.icdDiagnosis,
         }
-      : null
+      : null,
   );
 }
 
 export function setPendingPresentingComplaint(value: string | null) {
   setPendingSectionEntry(
     PRESENTING_COMPLAINTS_TABLE_KEY,
-    value ? { complaint: value } : null
+    value ? { complaint: value } : null,
   );
 }
 
 export function setPendingPhysicalExamination(
-  entry: PendingPhysicalExamination | null
+  entry: PendingPhysicalExamination | null,
 ) {
   setPendingSectionEntry(
     PHYSICAL_EXAMINATION_TABLE_KEY,
-    entry ? { ...entry } : null
+    entry ? { ...entry } : null,
   );
 }
 
 export function subscribeDiagnosisFormClear(
   listener: () => void,
-  key = DIAGNOSIS_TABLE_KEY
+  key = DIAGNOSIS_TABLE_KEY,
 ) {
   return subscribeSectionFormClear(key, listener);
 }
@@ -438,7 +456,7 @@ function appendTableRow(
   tableKey: string,
   data: Record<string, unknown>,
   enteredBy: string,
-  doctor: string
+  doctor: string,
 ) {
   if (tableKey === "PROCEDURE" && data.__findingsUpdate) {
     const rowIndex = Number(data.rowIndex);
@@ -454,7 +472,7 @@ function appendTableRow(
                 findingsBy: String(data.findingsBy || enteredBy),
                 hasResult: true,
               }
-            : row
+            : row,
         ),
       };
       userSavedTableKeys.add(tableKey);
@@ -502,7 +520,7 @@ function appendTableRow(
         .map((s) => s.trim())
         .filter(Boolean);
       const newUniqueParts = incomingParts.filter(
-        (part) => !existingParts.includes(part.toLowerCase())
+        (part) => !existingParts.includes(part.toLowerCase()),
       );
       const mergedDiagnosis =
         newUniqueParts.length > 0
@@ -517,7 +535,7 @@ function appendTableRow(
               dateTime: formattedNow,
               createdAtMs: nowMs,
             }
-          : row
+          : row,
       );
 
       tables = {
@@ -555,6 +573,7 @@ function appendTableRow(
         amount: formatInvestigationAmount(String(lineTotal)),
         remark: String(med.remark ?? ""),
         served: Boolean(med.served),
+        note: String(med.note ?? med.notes ?? ""),
         dispensedBy: String(med.dispensedBy ?? "—"),
       };
     });
@@ -592,7 +611,7 @@ function appendTableRow(
 export function updateMedicationDispenseStatus(
   rowIndex: number,
   updates: { served?: boolean; remark?: string },
-  dispensedByName: string
+  dispensedByName: string,
 ) {
   const currentMeds = tables.MEDICATION ?? [];
   if (rowIndex < 0 || rowIndex >= currentMeds.length) return;
@@ -643,13 +662,16 @@ function formatInvestigationAmount(amount: string): string {
 function commitPendingSection(
   tableKey: string,
   enteredBy: string,
-  doctor: string
+  doctor: string,
 ): boolean {
   const data = pendingSectionEntries[tableKey];
   if (!data || !hasPendingSectionEntry(tableKey)) return false;
 
   if (data[PENDING_BATCH_KEY]) {
-    const rows = JSON.parse(data[PENDING_BATCH_KEY]) as Record<string, string>[];
+    const rows = JSON.parse(data[PENDING_BATCH_KEY]) as Record<
+      string,
+      string
+    >[];
     rows.forEach((row) => appendTableRow(tableKey, row, enteredBy, doctor));
     clearPendingSection(tableKey);
     return true;
@@ -701,7 +723,7 @@ export function getPendingSectionRows(key: string): Record<string, unknown>[] {
 export function commitPendingCategoryEntries(
   enteredBy: string,
   doctor: string,
-  sectionKeys = [...Object.keys(pendingSectionEntries)]
+  sectionKeys = [...Object.keys(pendingSectionEntries)],
 ) {
   sectionKeys.forEach((tableKey) => {
     commitPendingSection(tableKey, enteredBy, doctor);
@@ -710,13 +732,19 @@ export function commitPendingCategoryEntries(
 
 export const useMedicalTable = (tableKey: string) => {
   const { user } = useAuth();
+  const nursingStatus = useContext(NursingPatientStatusContext);
   const allTables = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   const history = allTables[tableKey] ?? [];
 
   const save = (data: Record<string, string>) => {
     const enteredBy = user?.fullName ?? "Unknown User";
     const doctor = user?.fullName ? `Dr. ${user.fullName}` : "Unknown Doctor";
-    appendTableRow(tableKey, data, enteredBy, doctor);
+    appendTableRow(
+      tableKey,
+      withNursingStatus(data,nursingStatus),
+      enteredBy,
+      doctor,
+    );
   };
 
   const remove = (index: number) => {
@@ -743,8 +771,148 @@ export const useMedicalTable = (tableKey: string) => {
 
 /** Store multiple rows to commit together on category Submit. */
 export function buildBatchPendingEntry(
-  rows: Record<string, string>[]
+  rows: Record<string, string>[],
 ): Record<string, string> | null {
   if (rows.length === 0) return null;
   return { [PENDING_BATCH_KEY]: JSON.stringify(rows) };
+}
+
+/** Nursing-only action: update a prescription line and its linked dispense record. */
+export function recordNursingMedicationRemark(
+  rowIndex: number,
+  lineIndex: number | null,
+  remark: string,
+  nurse: string,
+  nurseId: string,
+  now = Date.now(),
+): boolean {
+  if (
+    !MEDICATION_REMARK_OPTIONS.includes(
+      remark as (typeof MEDICATION_REMARK_OPTIONS)[number],
+    )
+  )
+    return false;
+  const current = tables.MEDICATION ?? [];
+  const row = current[rowIndex];
+  if (!row) return false;
+  const batch = Array.isArray(row.medications)
+    ? (row.medications as Record<string, unknown>[])
+    : null;
+  const med =
+    batch && lineIndex !== null
+      ? batch[lineIndex]
+      : !batch && lineIndex === null
+        ? row
+        : null;
+  if (!med) return false;
+  const actionAt = Number(med.nursingRemarkAt);
+  if (
+    med.remark &&
+    (!actionAt ||
+      now - actionAt >= TWENTY_FOUR_HOURS_MS ||
+      String(med.nursingRemarkBy) !== nurseId)
+  )
+    return false;
+  const updated = {
+    ...med,
+    remark,
+    served: true,
+    dispensedBy: nurse,
+    nursingRemarkAt: actionAt || now,
+    nursingRemarkBy: nurseId,
+  };
+  const nextRow = batch
+    ? {
+        ...row,
+        medications: batch.map((item, index) =>
+          index === lineIndex ? updated : item,
+        ),
+      }
+    : updated;
+  const sourceKey = `${row.id ?? row.createdAtMs ?? rowIndex}:${lineIndex ?? "single"}`;
+  const dispenses = tables["NURSING DISPENSES"] ?? [];
+  const existing = dispenses.findIndex(
+    (item) => item.nursingSourceKey === sourceKey,
+  );
+  const dispense = {
+    ...row,
+    ...updated,
+    medications: undefined,
+    nursingSourceKey: sourceKey,
+    dateTime: formatMedicalDateTime(new Date(actionAt || now)),
+    createdAtMs: actionAt || now,
+  };
+  tables = {
+    ...tables,
+    MEDICATION: current.map((item, index) =>
+      index === rowIndex ? nextRow : item,
+    ),
+    "NURSING DISPENSES":
+      existing < 0
+        ? [...dispenses, { ...dispense, sn: dispenses.length + 1 }]
+        : dispenses.map((item, index) =>
+            index === existing ? { ...dispense, sn: item.sn } : item,
+          ),
+  };
+  userSavedTableKeys.add("NURSING DISPENSES");
+  userSavedTableKeys.add("MEDICATION");
+  emitChange();
+  return true;
+}
+
+/** Nursing procedure findings require explicit payment/HMO approval. */
+export function isNursingProcedureApproved(
+  row: Record<string, unknown>,
+): boolean {
+  return (
+    row.approved === true ||
+    [row.approvalStatus, row.paymentStatus].some((value) =>
+      ["approved", "paid"].includes(String(value ?? "").toLowerCase()),
+    )
+  );
+}
+export function recordNursingProcedureFindings(
+  tableKey: string,
+  rowIndex: number,
+  findings: string,
+  nurse: string,
+  nurseId: string,
+  now = Date.now(),
+): boolean {
+  const current = tables[tableKey] ?? [];
+  const row = current[rowIndex];
+  if (!row || !isNursingProcedureApproved(row) || !findings.trim())
+    return false;
+  const firstSaved = Number(row.nursingFindingsAt);
+  if (
+    row.findings &&
+    (!firstSaved ||
+      now - firstSaved >= TWENTY_FOUR_HOURS_MS ||
+      String(row.nursingFindingsBy) !== nurseId)
+  )
+    return false;
+  tables = {
+    ...tables,
+    [tableKey]: current.map((item, index) =>
+      index === rowIndex
+        ? {
+            ...item,
+            findings: findings.trim(),
+            findingsBy: nurse,
+            nursingFindingsBy: nurseId,
+            nursingFindingsAt: firstSaved || now,
+            hasResult: true,
+          }
+        : item,
+    ),
+  };
+  userSavedTableKeys.add(tableKey);
+  emitChange();
+  return true;
+}
+
+export function getIncompleteDraftSections(sectionKeys: string[]): string[] {
+  return sectionKeys.filter((key) =>
+    Boolean(pendingSectionEntries[key]?.[PENDING_INCOMPLETE_KEY]),
+  );
 }

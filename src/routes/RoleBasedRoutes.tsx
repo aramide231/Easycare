@@ -1,3 +1,8 @@
+import NursePatientProfile from "@/pages/nurse/patient-profile/PatientProfile";
+import NursePreviousRecords from "@/pages/nurse/patient-profile/PreviousPatientRecords";
+import Notifications from "@frontdesk/pages/notifications/Notifications";
+import NurseFlagProfile from "@/pages/nurse/patient-profile/flag-profile/FlagProfile";
+import PatientRecordScope from "@/pages/doctor/patientProfile/components/PatientRecordScope";
 // routes/RoleBasedRoutes.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -11,7 +16,6 @@ import DoctorLayout from "../layouts/DoctorLayout";
 import DiagnosticsLayout from "../layouts/DiagnosticsLayout";
 import AdminLayout from "../layouts/AdminLayout";
 
-import Notifications from "@frontdesk/pages/notifications/Notifications";
 import ComingSoonPage from "@/components/ui/ComingSoonPage";
 import ReminderPage from "@frontdesk/pages/set-reminder/ReminderPage";
 
@@ -182,13 +186,13 @@ const RoleBasedRoutes = () => {
         <Route
           path="patient-profile/:id"
           element={
-            <PatientRouteRedirect />
+            <PatientRecordScope><NursePatientProfile /></PatientRecordScope>
           }
         />
-        <Route path="flag-profile/:id" element={<PatientRouteRedirect />} />
+        <Route path="flag-profile/:id" element={<NurseFlagProfile />} />
         <Route
           path="previous-patient-records/:patientId"
-          element={<PatientRouteRedirect suffix="/history" />}
+          element={<NursePreviousRecords />}
         />
       </Route>
 

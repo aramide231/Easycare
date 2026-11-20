@@ -1,3 +1,5 @@
+import { groupNursingRows } from "../lib/monthlyRecords";
+import { useAuth } from "@/context/AuthContext";
 import { useCallback, useState } from "react";
 import { useMedicalTable } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
 import { usePendingCategoryDraft } from "@/pages/doctor/patientProfile/hooks/usePendingCategoryDraft";
@@ -11,6 +13,7 @@ import {
 const pairedFieldMinHeight = "min-h-[180px]";
 
 export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
+  const {user} = useAuth();
   const [form, setForm] = useState<Record<string, string>>({});
 
   const {
@@ -28,12 +31,12 @@ export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
       }
       return {
         appointmentDate: form.nextDoseDate || "",
-        nurse: form.nurse || "TOBA AYO",
+        nurse: nurse ? (user?.fullName || "Nurse") : (form.nurse || "TOBA AYO"),
         notes: form.notes || "",
         extraNotes: form.extraNotes || "",
       };
     },
-    [form],
+    [form, nurse, user?.fullName],
     clearForm
   );
 
@@ -78,16 +81,16 @@ export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
         />
       </div>}
 
-      {followUpHistory.length > 0 && (
-        <div className="overflow-x-auto">
-          <h4 className="mb-2 font-semibold">FOLLOW-UP VISIT</h4>
+      {(nurse ? groupNursingRows(followUpHistory) : [["",followUpHistory] as [string, typeof followUpHistory]]).map(([month,rows]) => (
+        <div key={month} className="overflow-x-auto">
+          <h4 className="mb-2 font-semibold">FOLLOW-UP VISIT {month && `— ${month}`}</h4>
 
           <table className="min-w-max w-full border text-left text-sm">
             <thead className="bg-gray-100">
               <tr>
                 <th>S/N</th>
                 <th>Date | Time</th>
-                <th>Patient Type</th>
+                <th>{nurse ? "Patient Status" : "Patient Type"}</th>
                 <th>Appointment Date</th>
                 <th>Nurse</th>
                 <th>Follow-up Notes</th>
@@ -97,7 +100,7 @@ export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
             </thead>
 
             <tbody>
-              {followUpHistory.map((row, index) => (
+              {rows.map((row, index) => (
                 <tr key={index} className="even:bg-gray-50">
                   <td>{String(row.sn ?? "")}</td>
                   <td>{String(row.dateTime ?? "")}</td>
@@ -109,7 +112,7 @@ export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
                   <td>
                     <button
                       type="button"
-                      onClick={() => deleteFollowUp(index)}
+                      onClick={() => deleteFollowUp(followUpHistory.indexOf(row))}
                       className="rounded bg-red-500 px-2 py-1 text-xs text-white"
                     >
                       Delete
@@ -120,7 +123,7 @@ export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
             </tbody>
           </table>
         </div>
-      )}
+      ))}
     </div>
   );
 }

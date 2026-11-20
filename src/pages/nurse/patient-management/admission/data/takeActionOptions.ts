@@ -12,7 +12,7 @@ export const TAKE_ACTION_OPTIONS: TakeActionOption[] = [
   },
   {
     id: "dama",
-    label: "DAMA",
+    label: "DAMA (Discharged Against Medical Advice)",
     successMessage: "DAMA recorded successfully",
   },
   {

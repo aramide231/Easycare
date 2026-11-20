@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { NursingContext } from "@/pages/nurse/patient-profile/lib/NursingContext";
 import { useCallback, useMemo, useState } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
 import { useMedicalTable } from "../../../hooks/useMedicalTable";
@@ -271,6 +273,7 @@ function MultiBabyDateTime({
 }
 
 export default function Stage4DeliveryNote() {
+  const nursing = useContext(NursingContext);
   const [form, setForm] = useState<Record<string, string>>({});
   const [babies, setBabies] = useState<BabyDetails[]>([emptyBaby()]);
 
@@ -520,7 +523,7 @@ export default function Stage4DeliveryNote() {
 
         <div className="min-w-0">
           <label className="mb-1 block text-sm font-medium text-gray-700">
-            Patient Type
+            {nursing ? "Booking Status" : "Patient Type"}
           </label>
           <div className="relative">
             <select
