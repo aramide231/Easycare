@@ -1,4 +1,8 @@
-import { useEffect } from "react";
+import {
+  NursingPatientStatusContext,
+  withNursingStatus,
+} from "@/pages/nurse/patient-profile/lib/NursingContext";
+import { useEffect, useContext } from "react";
 import {
   setPendingSectionEntry,
   subscribeSectionFormClear,
@@ -9,12 +13,17 @@ export function usePendingCategoryDraft(
   tableKey: string,
   buildDraft: () => Record<string, string> | null,
   deps: React.DependencyList,
-  onClear: () => void
+  onClear: () => void,
 ) {
+  const nursingStatus = useContext(NursingPatientStatusContext);
   useEffect(() => {
-    setPendingSectionEntry(tableKey, buildDraft());
+    const draft = buildDraft();
+    setPendingSectionEntry(
+      tableKey,
+      draft ? withNursingStatus(draft, nursingStatus) : null,
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, nursingStatus]);
 
   useEffect(() => {
     return subscribeSectionFormClear(tableKey, onClear);

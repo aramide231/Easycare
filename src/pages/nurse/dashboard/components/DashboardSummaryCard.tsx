@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import cardPattern from "@/assets/image/dashboard-card-pattern.png";
-import notificationPattern from "@/assets/image/dashboard-card-pattern-notification.png";
 
 type Variant = "dark" | "notification";
 
@@ -29,7 +28,7 @@ const DashboardSummaryCard = ({
       className={cn(
         "relative flex min-h-[105px] w-full items-center overflow-hidden rounded-lg px-6 py-4 text-left shadow-sm transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#573FD1] focus-visible:ring-offset-2",
         isNotification
-          ? "border border-[#FA7401] bg-gradient-to-br from-[#FFF5EE] via-white to-white"
+          ? "border border-[#573FD1] bg-purple-50 text-[#573FD1] hover:bg-purple-100"
           : "bg-[#0c1628] text-white"
       )}
     >
@@ -37,7 +36,7 @@ const DashboardSummaryCard = ({
         <div
           className={cn(
             "flex shrink-0 items-center justify-center rounded-full p-2.5",
-            isNotification ? "bg-orange-100" : "bg-white/10"
+            isNotification ? "bg-purple-100" : "bg-white/10"
           )}
         >
           {icon}
@@ -62,12 +61,12 @@ const DashboardSummaryCard = ({
         </div>
       </div>
 
-      <img
-        src={isNotification ? notificationPattern : cardPattern}
+      {!isNotification && <img
+        src={cardPattern}
         alt=""
         aria-hidden
         className="pointer-events-none absolute right-0 top-0 h-full w-auto object-cover"
-      />
+      />}
     </button>
   );
 };

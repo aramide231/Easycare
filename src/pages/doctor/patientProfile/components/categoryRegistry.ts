@@ -1,7 +1,14 @@
-import { antenatalRenderer } from "./categories/antenatal";
-import { childBirthRenderer } from "./categories/childbirth";
+import { createElement, type ReactNode } from "react";
+import { categoryComponents } from "./CategoryRenderer";
+import { subCategoryMap } from "../config/subCategoryMap";
 
-export const categoryRegistry: Record<string, Record<string, React.ReactNode>> = {
-  "Ante Natal Care": antenatalRenderer,
-  "Child Birth": childBirthRenderer,
-};
+export const categoryRegistry: Record<string, Record<string, ReactNode>> =
+  Object.fromEntries(
+    ["Ante Natal Care", "Child Birth"].map((category) => [
+      category,
+      Object.fromEntries(subCategoryMap[category].map(({ label }) => {
+        const Component = categoryComponents[label];
+        return [label, Component ? createElement(Component) : null];
+      })),
+    ]),
+  );

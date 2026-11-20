@@ -1,3 +1,4 @@
+import { createSessionObjectUrl } from "@/lib/sessionScope";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileText, X } from "lucide-react";
 import { FaCloudUploadAlt, FaFolderOpen } from "react-icons/fa";
@@ -192,7 +193,7 @@ const UploadedDocumentsSection = ({
       uploadDate: formatUploadDate(now),
       uploadTime: formatUploadTime(now),
       uploadedBy: user?.fullName ?? "Unknown User",
-      objectUrl: URL.createObjectURL(item.file),
+      objectUrl: createSessionObjectUrl(item.file),
     }));
 
     setDocuments((prev) => [...entries, ...prev]);

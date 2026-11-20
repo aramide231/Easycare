@@ -1,44 +1,11 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import CustomCalendar from "@/pages/doctor/dashboard/components/calendar";
-import {
-  getPatientsLogRowById,
-  type DiagnosticsPatientsLogRow,
-  type PatientCategory,
-} from "../data/mockDiagnostics";
-import DiagnosticsDashboardSummary from "./components/DiagnosticsDashboardSummary";
-import DashboardPatientsLog from "./components/DashboardPatientsLog";
-import DashboardPatientCard from "./components/DashboardPatientCard";
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./DiagnosticsDashboard.preview";
+import PatientRegistry from "@/pages/patients/PatientRegistry";
 
-const DiagnosticsDashboard = () => {
-  const location = useLocation();
-  const patientCategoryFilter = location.state?.patientCategory as
-    | PatientCategory
-    | undefined;
+function PatientDashboard() {
+  return <div className="px-4 py-4 sm:px-8"><PatientRegistry /></div>;
+}
 
-  const [selectedPatient, setSelectedPatient] =
-    useState<DiagnosticsPatientsLogRow | null>(() => getPatientsLogRowById(7));
-
-  return (
-    <div className="mt-0 flex gap-6">
-      <div className="flex-[3]">
-        <DiagnosticsDashboardSummary />
-        <DashboardPatientsLog
-          selectedId={selectedPatient?.id ?? null}
-          onSelectRow={setSelectedPatient}
-          patientCategoryFilter={patientCategoryFilter}
-        />
-      </div>
-
-      <div className="flex-[1]">
-        <CustomCalendar width="100%" />
-        <DashboardPatientCard
-          key={selectedPatient?.id ?? "none"}
-          patient={selectedPatient}
-        />
-      </div>
-    </div>
-  );
-};
-
-export default DiagnosticsDashboard;
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <PatientDashboard />;
+}

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PatientsLog from "./components/patientLog";
 import DashboardSummary from "./components/summary";
@@ -6,14 +7,13 @@ import CustomCalendar, {
   type DashboardDateRange,
 } from "./components/calendar";
 import PatientCard from "@/constant/patientCard";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   buildMockPatients,
   type Patient,
 } from "./data/mockPatients";
 
 const NurseDashboard = () => {
+  const navigate = useNavigate();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [patients, setPatients] = useState<Patient[]>(() => buildMockPatients());
   const [dateRange, setDateRange] = useState<DashboardDateRange | null>(null);
@@ -44,7 +44,10 @@ const NurseDashboard = () => {
           className="w-full shrink-0"
         />
         {selectedPatient ? (
-          <PatientCard patient={selectedPatient} />
+          <div className="space-y-4">
+            <PatientCard patient={selectedPatient} />
+            <button type="button" className="w-full rounded-lg border border-[#573FD1] bg-purple-50 px-4 py-3 text-sm font-semibold text-[#573FD1] hover:bg-purple-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#573FD1]" onClick={() => navigate(`/nurse/patient-profile/${encodeURIComponent(selectedPatient.patientId)}`, { state: { patient: selectedPatient } })}>View Patient Profile</button>
+          </div>
         ) : (
           <div className="flex min-h-[16rem] flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center shadow-sm">
             <p className="text-sm font-medium text-gray-800">
@@ -56,7 +59,6 @@ const NurseDashboard = () => {
           </div>
         )}
       </div>
-      <ToastContainer position="bottom-center" autoClose={2500} />
     </div>
   );
 };

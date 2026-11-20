@@ -1,49 +1,11 @@
-import { useState } from "react";
-import PatientsLog from "./components/patientLog";
-import DashboardSummary from "./components/DashboardSummary";
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./Dashboard.preview";
+import PatientRegistry from "@/pages/patients/PatientRegistry";
 
-import Calendar from "./components/calendar";
-import PatientCard from "@frontdesk/shared/patientCard";
-import EmptyPatientState from "./components/EmptyPatientState";
+function FrontdeskDashboard() {
+  return <div className="px-4 py-4 sm:px-8"><PatientRegistry /></div>;
+}
 
-type Patient = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  patientId: string;
-  phoneNumber: string;
-  lastSeen: string;
-  time: string;
-  gender: string;
-  age: number;
-  patientType: string;
-  visitType: string;
-  staffName: string;
-  flagged: boolean;
-  bloodPressure: string;
-  name: string;
-};
-
-const FrontdeskDashboard = () => {
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-
-  return (
-    <div className="flex gap-6 ">
-      <div className="flex-3 w-[]">
-        <DashboardSummary />
-        <PatientsLog onSelectPatient={setSelectedPatient} />
-      </div>
-
-      <div className="flex-1 flex flex-col gap-4">
-        <Calendar />
-        {selectedPatient ? (
-          <PatientCard patient={selectedPatient} />
-        ) : (
-          <EmptyPatientState />
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default FrontdeskDashboard;
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <FrontdeskDashboard />;
+}

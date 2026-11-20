@@ -1,3 +1,5 @@
+import { IS_DEMO } from "@/config/dataSource";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ModuleSelectionModal, {
   type PreviewModule,
@@ -15,8 +17,10 @@ const modulePaths: Record<PreviewModule, string> = {
 
 const PreviewEntry = () => {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
-  const handleSelect = (module: PreviewModule) => {
+  const handleSelect = async (module: PreviewModule) => {
+    if (IS_DEMO) await signIn(`demo.${module}`, "demo-only");
     navigate(modulePaths[module]);
   };
 

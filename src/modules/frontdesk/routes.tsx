@@ -1,3 +1,9 @@
+import { IS_DEMO } from "@/config/dataSource";
+import { Navigate } from "react-router-dom";
+import { PatientRouteRedirect } from "@/components/patient/patientWorkspace";
+import PatientRegistry from "@/pages/patients/PatientRegistry";
+import PatientEditor from "@/pages/patients/PatientEditor";
+import PatientAccess from "@/pages/patients/PatientAccess";
 import { Route } from "react-router-dom";
 
 import FrontdeskLayout from "@frontdesk/layouts/FrontdeskLayout";
@@ -19,9 +25,6 @@ import Immunization from "@frontdesk/pages/immunization/Immunization";
 import FamilyPlanning from "@frontdesk/pages/family-planning/FamilyPlanning";
 import RegistrationLog from "@frontdesk/pages/RegistrationLog";
 import Registration from "@frontdesk/pages/Registration/Registration";
-import PatientInfoRegistration from "@frontdesk/pages/Registration/PatientInfoRegistration";
-import PatientInsuranceReg from "@frontdesk/pages/Registration/PatientInsuranceReg";
-import PatientEmergencyReg from "@frontdesk/pages/Registration/PatientEmergencyReg";
 import PatientRegSuccess from "@frontdesk/pages/Registration/PatientRegSuccess";
 import FlagProfile from "@frontdesk/pages/flag-profile/FlagProfile";
 import PatientProfile from "@/pages/nurse/patient-profile/PatientProfile";
@@ -34,16 +37,16 @@ export function FrontdeskRoutes() {
   return (
     <Route path="/frontdesk" element={<FrontdeskLayout />}>
       <Route index element={<FrontdeskDashboard />} />
-      <Route path="edit/:id" element={<EditPatient />} />
+      <Route path="edit/:id" element={IS_DEMO ? <EditPatient /> : <PatientRouteRedirect suffix="/edit" />} />
       <Route path="visitation-log" element={<Visitation />} />
-      <Route path="registration" element={<Registration />} />
-      <Route path="patient-info-reg" element={<PatientInfoRegistration />} />
-      <Route path="patient-Insurance-reg" element={<PatientInsuranceReg />} />
-      <Route path="patient-emergency-reg" element={<PatientEmergencyReg />} />
-      <Route path="patient-reg-success" element={<PatientRegSuccess />} />
+      <Route path="registration" element={IS_DEMO ? <Registration /> : <PatientEditor />} />
+      <Route path="patient-info-reg" element={<Navigate to="/frontdesk/registration" replace />} />
+      <Route path="patient-Insurance-reg" element={<Navigate to="/frontdesk/registration" replace />} />
+      <Route path="patient-emergency-reg" element={<Navigate to="/frontdesk/registration" replace />} />
+      <Route path="patient-reg-success" element={IS_DEMO ? <PatientRegSuccess /> : <Navigate to="/patients" replace state={null} />} />
       <Route path="notifications" element={<Notifications />} />
-      <Route path="manage-access" element={<ManageAccess />} />
-      <Route path="manage-card" element={<ManageCard />} />
+      <Route path="manage-access" element={IS_DEMO ? <ManageAccess /> : <PatientAccess />} />
+      <Route path="manage-card" element={IS_DEMO ? <ManageCard /> : <PatientRegistry />} />
       <Route path="reminder" element={<ReminderPage />} />
       <Route path="reminder/set-reminder" element={<SetReminder />} />
       <Route path="reminder/view-schedule" element={<ViewReminder />} />
@@ -54,9 +57,9 @@ export function FrontdeskRoutes() {
       <Route path="post-natal" element={<PostNatal />} />
       <Route path="immunization" element={<Immunization />} />
       <Route path="family-planning" element={<FamilyPlanning />} />
-      <Route path="registration-log" element={<RegistrationLog />} />
-      <Route path="flag-profile/:id" element={<FlagProfile />} />
-      <Route path="patient-profile/:id" element={<PatientProfile />} />
+      <Route path="registration-log" element={IS_DEMO ? <RegistrationLog /> : <PatientRegistry />} />
+      <Route path="flag-profile/:id" element={IS_DEMO ? <FlagProfile /> : <PatientRouteRedirect />} />
+      <Route path="patient-profile/:id" element={IS_DEMO ? <PatientProfile /> : <PatientRouteRedirect />} />
     </Route>
   );
 }

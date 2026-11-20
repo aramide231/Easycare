@@ -1,3 +1,8 @@
+import { IS_DEMO } from "@/config/dataSource";
+import { PatientRouteRedirect } from "@/components/patient/patientWorkspace";
+import { AdmissionsPage } from "@/pages/visits/Admissions";
+import Wards from "@/pages/visits/Wards";
+import { CareProgramsPage } from "@/pages/visits/CarePrograms";
 import { lazy } from "react";
 import { Route } from "react-router-dom";
 
@@ -74,24 +79,24 @@ export function HmoRoutes() {
       <Route path="account-review" element={<HmoAccountReview />} />
       <Route path="bill-summary" element={<HmoBillSummary />} />
       <Route path="claims-processor" element={<HmoClaimsProcessor />} />
-      <Route path="admission" element={<HmoAdmission />} />
-      <Route path="available-ward" element={<HmoAvailableWard />} />
-      <Route path="discharge" element={<HmoDischarge />} />
+      <Route path="admission" element={IS_DEMO ? <HmoAdmission /> : <AdmissionsPage />} />
+      <Route path="available-ward" element={IS_DEMO ? <HmoAvailableWard /> : <Wards />} />
+      <Route path="discharge" element={IS_DEMO ? <HmoDischarge /> : <AdmissionsPage initialStatus="discharged" />} />
       <Route path="service-list" element={<HmoServiceList />} />
       <Route path="reminder" element={<HmoSetReminder />} />
-      <Route path="ante-natal-logs" element={<HmoAnteNatalLogs />} />
-      <Route path="child-birth-logs" element={<HmoChildBirthLogs />} />
-      <Route path="discharged-logs" element={<HmoDischargedLogs />} />
+      <Route path="ante-natal-logs" element={IS_DEMO ? <HmoAnteNatalLogs /> : <CareProgramsPage initialType="antenatal" />} />
+      <Route path="child-birth-logs" element={IS_DEMO ? <HmoChildBirthLogs /> : <CareProgramsPage initialType="delivery" />} />
+      <Route path="discharged-logs" element={IS_DEMO ? <HmoDischargedLogs /> : <AdmissionsPage initialStatus="discharged" />} />
       <Route path="ins-registration-logs" element={<HmoInsRegistrationLogs />} />
       <Route
         path="pre-authorisation-logs"
         element={<HmoPreAuthorisationLogs />}
       />
-      <Route path="patient-profile/:id" element={<HmoPatientProfile />} />
-      <Route path="flag-profile/:id" element={<HmoFlagProfile />} />
+      <Route path="patient-profile/:id" element={IS_DEMO ? <HmoPatientProfile /> : <PatientRouteRedirect />} />
+      <Route path="flag-profile/:id" element={IS_DEMO ? <HmoFlagProfile /> : <PatientRouteRedirect />} />
       <Route
         path="previous-patient-records/:patientId"
-        element={<PreviousPatientRecords />}
+        element={IS_DEMO ? <PreviousPatientRecords /> : <PatientRouteRedirect suffix="/history" />}
       />
     </Route>
   );

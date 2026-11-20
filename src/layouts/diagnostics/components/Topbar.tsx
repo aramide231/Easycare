@@ -1,5 +1,7 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./Topbar.preview";
 import { useLocation, Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import HeaderPatientSearch from "@/components/header/HeaderPatientSearch";
 import AppGridMenu from "@/components/header/AppGridMenu";
 import ProfileMenu from "@/components/header/ProfileMenu";
 import Clock from "@/layouts/nurse/components/Clock";
@@ -29,7 +31,7 @@ const PERFORM_ACTION_BREADCRUMBS: Record<string, string> = {
   "/diagnostics/set-reminder": "Set Reminder",
 };
 
-export default function DiagnosticsTopbar() {
+function DiagnosticsTopbar() {
   const location = useLocation();
 
   const isBreadcrumbPage = breadcrumbPatterns.some((pattern) =>
@@ -114,20 +116,7 @@ export default function DiagnosticsTopbar() {
               {renderBreadcrumbs()}
             </div>
           ) : (
-            <div className="relative h-10 w-full">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center gap-3 pl-4">
-                <Search
-                  className="h-[18px] w-[18px] text-gray-500"
-                  strokeWidth={2.5}
-                />
-                <span className="text-gray-300 font-light text-lg pb-0.5">|</span>
-              </div>
-              <input
-                type="text"
-                placeholder="Search Patients ID"
-                className="h-10 w-full rounded-lg border border-gray-200 bg-white pl-14 pr-4 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-2 focus:border-[#573FD1]"
-              />
-            </div>
+            <HeaderPatientSearch />
           )}
         </div>
 
@@ -139,4 +128,8 @@ export default function DiagnosticsTopbar() {
       </div>
     </header>
   );
+}
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <DiagnosticsTopbar />;
 }

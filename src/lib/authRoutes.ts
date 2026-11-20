@@ -11,10 +11,28 @@ export const ROLE_HOME_PATHS: Record<string, string> = {
 };
 
 export function getRoleHomePath(role: string): string {
-  return ROLE_HOME_PATHS[role] ?? "/auth?tab=signin";
+  return ROLE_HOME_PATHS[role] ?? "/access-pending";
 }
 
 export const AUTH_SIGNIN_PATH = "/auth?tab=signin";
+
+export function isModuleAllowed(pathname: string, roles: string[], permissions: string[] = []): boolean {
+  const module = pathname.split("/")[1];
+  if (module === "appointments") return permissions.includes("appointments.view");
+  if (module === "visits") return permissions.includes("encounters.view") && permissions.includes("patients.view");
+  if (module === "patients") return permissions.includes("patients.view");
+  if (module === "admin") {
+    const section = pathname.split("/")[2];
+    if (section === "files") return permissions.includes("files.view_own");
+    if (section === "audit") return permissions.includes("audit.view");
+    if (section === "users") return permissions.includes("staff.manage");
+    return permissions.includes("staff.manage") || permissions.includes("audit.view") || permissions.includes("files.view_own");
+  }
+  if (["diagnostics", "diagnostics-and-radiologist"].includes(module)) {
+    return roles.some((role) => ["diagnostics", "laboratory", "diagnostics-and-radiologist"].includes(role));
+  }
+  return !(module in ROLE_HOME_PATHS) || roles.includes(module);
+}
 
 /** Prefer the module in the URL so preview/demo navigation stays in the right area. */
 export function getActiveModuleRole(
@@ -30,5 +48,5 @@ export function getActiveModuleRole(
     return "diagnostics-and-radiologist";
   if (pathname.startsWith("/diagnostics")) return "diagnostics";
   if (pathname.startsWith("/admin")) return "admin";
-  return userRole?.toLowerCase() || "nurse";
+  return userRole?.toLowerCase() || "staff";
 }

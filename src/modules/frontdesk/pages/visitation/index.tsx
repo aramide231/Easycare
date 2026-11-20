@@ -1,15 +1,11 @@
-import PatientsLog from "../dashboard/components/patientLog";
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./index.preview";
+import VisitRegister from "@/pages/visits/VisitRegister";
 
-const Visitation = () => {
-  return (
-    <div className="flex h-screen w-full">
-      <main className="flex-1 p-6">
-        <div className="gap-6 mt-6">
-          <PatientsLog onSelectPatient={() => {}} />
-        </div>
-      </main>
-    </div>
-  );
-};
+function Visitation() {
+  return <div className="min-w-0 px-4 py-6 sm:px-6 lg:px-8"><VisitRegister /></div>;
+}
 
-export default Visitation;
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <Visitation />;
+}

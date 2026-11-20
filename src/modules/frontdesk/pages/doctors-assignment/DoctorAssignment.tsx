@@ -1,15 +1,11 @@
-import DoctorLog from "./components/DoctorLog";
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./DoctorAssignment.preview";
+import VisitRegister from "@/pages/visits/VisitRegister";
 
-const DoctorAssignment = () => {
-  return (
-    <div className="flex h-screen w-full">
-      <main className="flex-1 p-6 ">
-        <div className=" gap-6 mt-6">
-          <DoctorLog />
-        </div>
-      </main>
-    </div>
-  );
-};
+function DoctorAssignment() {
+  return <div className="min-w-0 px-4 py-6 sm:px-6 lg:px-8"><VisitRegister initialQueues /></div>;
+}
 
-export default DoctorAssignment;
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <DoctorAssignment />;
+}

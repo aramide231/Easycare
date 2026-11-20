@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { NursingContext } from "@/pages/nurse/patient-profile/lib/NursingContext";
 import { useCallback, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useMedicalTable } from "../../../hooks/useMedicalTable";
@@ -67,6 +69,7 @@ const labourTableColumns = [
 ];
 
 export default function Stage1Labour() {
+  const nursing = useContext(NursingContext);
   const [stageOneLabourForm, setStageOneLabourForm] = useState<
     Record<string, string>
   >({});
@@ -149,7 +152,7 @@ export default function Stage1Labour() {
         {stageOneLabourPairFields.map((field) => (
           <div key={field.name} className="min-w-0">
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              {field.label}
+              {nursing && field.name === "patientType" ? "Booking Status" : field.label}
             </label>
 
             {field.type === "select" ? (

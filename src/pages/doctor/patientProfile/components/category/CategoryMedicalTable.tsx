@@ -1,3 +1,10 @@
+import { useContext } from "react";
+import { nursingDisplayRow } from "@/pages/nurse/patient-profile/lib/recordDetails";
+import { NursingContext, NursingPatientStatusContext } from "@/pages/nurse/patient-profile/lib/NursingContext";
+import {
+  groupNursingRows,
+  moneyValue,
+} from "@/pages/nurse/patient-profile/lib/monthlyRecords";
 import type { CategoryTableColumn } from "../../config/categoryFieldTypes";
 
 export type MedicalTableRow = Record<string, unknown>;
@@ -8,7 +15,7 @@ type Props = {
   columns: CategoryTableColumn[];
   rows: MedicalTableRow[];
   emptyMessage?: string;
-  /** Shown when a cell value is empty. Defaults to "—". */
+  /** Shown when a cell value is empty. Defaults to "â€”". */
   emptyCellLabel?: string;
   /** Column keys that render as a purple VIEW link. */
   linkColumns?: string[];
@@ -32,12 +39,12 @@ const DEFAULT_WRAP_COLUMNS = new Set([
  * Supports horizontal scrolling for wide tables (e.g. 15-column Vital Signs details)
  * without clipping or breaking the layout.
  */
-const CategoryMedicalTable = ({
+const MedicalTable = ({
   title,
   columns,
   rows,
   emptyMessage = "No records yet.",
-  emptyCellLabel = "—",
+  emptyCellLabel = "â€”",
   linkColumns = [],
   onLinkClick,
   wrapColumns = [],
@@ -131,4 +138,74 @@ function formatCell(value: unknown, emptyLabel: string): string {
   return String(value);
 }
 
+const CategoryMedicalTable = (props: Props) => {
+  const nursing = useContext(NursingContext);
+  const currentStatus = useContext(NursingPatientStatusContext);
+  if (!nursing) return <MedicalTable {...props} />;
+  const columns = props.columns.map((col) =>
+    col.key === "patientType" ? { ...col, label: "PATIENT STATUS" } : col,
+  );
+  if (!columns.some(col => col.key === "patientType")) columns.splice(Math.min(2,columns.length),0,{key:"patientType",label:"PATIENT STATUS"});
+  if (["PUSHING & BIRTHING DETAILS","DELIVERY OF PLACENTA"].includes(props.title) && !columns.some(col => col.key === "additional")) columns.push({key:"additional",label:"ADDITIONAL(S)"});
+  const displayRows = props.rows.map((row) => nursingDisplayRow(row, currentStatus));
+  if (displayRows.some((row) => row.patientCategory) && !columns.some((col) => col.key === "patientCategory"))
+    columns.push({ key: "patientCategory", label: "PATIENT TYPE" });
+  if (
+    displayRows.some((row) => row.bookingStatus) &&
+    !columns.some((col) => col.key === "bookingStatus")
+  )
+    columns.push({ key: "bookingStatus", label: "BOOKING STATUS" });
+  if (props.title === "DELIVERY NOTE DETAILS") {
+    const extra = {
+      patientType: "PATIENT STATUS",
+      ega: "E.G.A",
+      babyLength: "BABY LENGTH",
+      headCircumference: "HEAD CIRCUMFERENCE",
+      babyCondition: "BABY CONDITION",
+      babyGender: "BABY GENDER",
+      babyImmunization: "IMMUNIZATION",
+      motherCondition: "MOTHER CONDITION",
+      anyComplication: "COMPLICATIONS",
+      clinician: "CLINICIAN",
+      physicalExam: "PHYSICAL EXAMINATION",
+      additional: "ADDITIONAL(S)",
+    };
+    Object.entries(extra).forEach(([key, label]) => {
+      if (!columns.some((column) => column.key === key))
+        columns.push({ key, label });
+    });
+  }
+  const amountColumn = columns.find((col) =>
+    ["amount", "price", "lineTotal"].includes(col.key),
+  );
+  const groups = groupNursingRows(displayRows);
+  return (
+    <div className="space-y-5">
+      {amountColumn && props.rows.length > 0 && (
+        <p className="text-right text-sm font-semibold text-[#573FD1]">
+          Overall Total:{" "}
+          {props.rows
+            .reduce(
+              (total, row) => total + moneyValue(row[amountColumn.key]),
+              0,
+            )
+            .toLocaleString("en-NG", { style: "currency", currency: "NGN" })}
+        </p>
+      )}
+      {groups.length ? (
+        groups.map(([month, rows]) => (
+          <MedicalTable
+            key={month}
+            {...props}
+            title={`${props.title} — ${month}`}
+            columns={columns}
+            rows={rows}
+          />
+        ))
+      ) : (
+        <MedicalTable {...props} columns={columns} />
+      )}
+    </div>
+  );
+};
 export default CategoryMedicalTable;
