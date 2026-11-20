@@ -1,3 +1,4 @@
+import { isNursingVolumeValid, parseNursingVolume as parseVolume } from "../lib/recordDetails";
 import { useCallback, useMemo, useState } from "react";
 import { categoryDetailsTitle } from "@/pages/doctor/patientProfile/config/categoryFieldTypes";
 import { useMedicalTable } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
@@ -21,10 +22,6 @@ const outputTableColumns = [
   { key: "fluidBalance", label: "FLUID BALANCE" },
 ];
 
-function parseVolume(value: string): number {
-  const parsed = parseFloat(value.replace(/[^\d.-]/g, ""));
-  return Number.isFinite(parsed) ? parsed : 0;
-}
 
 export default function OutputChart() {
   const [form, setForm] = useState({
@@ -52,9 +49,10 @@ export default function OutputChart() {
     [form],
   );
 
+  const invalidVolume = Object.values(form).some((value) => !isNursingVolumeValid(value));
   const fluidBalanceVal = latestIntake - outputTotal;
   const fluidBalanceStr =
-    outputTotal > 0 || latestIntake > 0
+    Object.values(form).some((value) => value.trim()) || latestIntake > 0
       ? `${fluidBalanceVal > 0 ? "+" : ""}${fluidBalanceVal}`
       : "";
 
@@ -79,13 +77,14 @@ export default function OutputChart() {
     () => {
       const hasValue = Object.values(form).some((value) => value.trim());
       if (!hasValue && outputTotal <= 0) return null;
+      if (invalidVolume) return { ...form, __incomplete__: "true" };
       return {
         ...form,
         outputTotal: String(outputTotal),
         fluidBalance: fluidBalanceStr,
       };
     },
-    [form, outputTotal, fluidBalanceStr],
+    [form, outputTotal, fluidBalanceStr, invalidVolume],
     clearForm,
   );
 
@@ -183,7 +182,7 @@ export default function OutputChart() {
           <input
             type="text"
             readOnly
-            value={outputTotal > 0 ? String(outputTotal) : ""}
+            value={Object.values(form).some((value) => value.trim()) ? String(outputTotal) : ""}
             placeholder="Auto-calculated"
             className={`${formFieldInputClass} bg-gray-100 font-medium text-gray-700`}
           />
@@ -213,6 +212,7 @@ export default function OutputChart() {
         </div>
       </div>
 
+      {invalidVolume && <p role="alert" className="text-sm text-red-700">Enter a non-negative volume in mL for each output field before confirming.</p>}
       <CategoryMedicalTable
         title={categoryDetailsTitle("OUTPUT CHART")}
         columns={outputTableColumns}

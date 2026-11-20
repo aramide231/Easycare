@@ -1,6 +1,8 @@
+import { NursingPatientStatusContext } from "../lib/NursingContext";
+import { nursingDisplayRow } from "../lib/recordDetails";
 import { groupNursingRows } from "../lib/monthlyRecords";
 import { useAuth } from "@/context/AuthContext";
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { useMedicalTable } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
 import { usePendingCategoryDraft } from "@/pages/doctor/patientProfile/hooks/usePendingCategoryDraft";
 import FormDatePicker from "@/pages/doctor/patientProfile/components/category/FormDatePicker";
@@ -14,6 +16,7 @@ const pairedFieldMinHeight = "min-h-[180px]";
 
 export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
   const {user} = useAuth();
+  const patientStatus = useContext(NursingPatientStatusContext);
   const [form, setForm] = useState<Record<string, string>>({});
 
   const {
@@ -104,7 +107,7 @@ export default function FollowUp({ nurse = false }: { nurse?: boolean }) {
                 <tr key={index} className="even:bg-gray-50">
                   <td>{String(row.sn ?? "")}</td>
                   <td>{String(row.dateTime ?? "")}</td>
-                  <td>{String(row.patientType || "OPD")}</td>
+                  <td>{String(nurse ? nursingDisplayRow(row, patientStatus).patientType : row.patientType || "OPD")}</td>
                   <td>{String(row.appointmentDate ?? "")}</td>
                   <td>{String(row.nurse ?? "")}</td>
                   <td className="max-w-sm whitespace-pre-wrap break-words">{String(row.notes ?? "")}</td>

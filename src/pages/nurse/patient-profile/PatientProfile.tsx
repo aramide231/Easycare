@@ -190,7 +190,7 @@ const NursePatientProfile = () => {
       }
       commitPendingCategoryEntries(
         user?.fullName?.trim() || "Nurse",
-        "Clinician",
+        user?.fullName?.trim() || "Nurse",
         sectionKeys,
       );
       toast.success("Health information confirmed.");

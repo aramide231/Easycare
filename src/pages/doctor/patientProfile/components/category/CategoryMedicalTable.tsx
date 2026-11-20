@@ -1,5 +1,6 @@
 import { useContext } from "react";
-import { NursingContext } from "@/pages/nurse/patient-profile/lib/NursingContext";
+import { nursingDisplayRow } from "@/pages/nurse/patient-profile/lib/recordDetails";
+import { NursingContext, NursingPatientStatusContext } from "@/pages/nurse/patient-profile/lib/NursingContext";
 import {
   groupNursingRows,
   moneyValue,
@@ -139,14 +140,18 @@ function formatCell(value: unknown, emptyLabel: string): string {
 
 const CategoryMedicalTable = (props: Props) => {
   const nursing = useContext(NursingContext);
+  const currentStatus = useContext(NursingPatientStatusContext);
   if (!nursing) return <MedicalTable {...props} />;
   const columns = props.columns.map((col) =>
     col.key === "patientType" ? { ...col, label: "PATIENT STATUS" } : col,
   );
   if (!columns.some(col => col.key === "patientType")) columns.splice(Math.min(2,columns.length),0,{key:"patientType",label:"PATIENT STATUS"});
   if (["PUSHING & BIRTHING DETAILS","DELIVERY OF PLACENTA"].includes(props.title) && !columns.some(col => col.key === "additional")) columns.push({key:"additional",label:"ADDITIONAL(S)"});
+  const displayRows = props.rows.map((row) => nursingDisplayRow(row, currentStatus));
+  if (displayRows.some((row) => row.patientCategory) && !columns.some((col) => col.key === "patientCategory"))
+    columns.push({ key: "patientCategory", label: "PATIENT TYPE" });
   if (
-    props.rows.some((row) => row.bookingStatus) &&
+    displayRows.some((row) => row.bookingStatus) &&
     !columns.some((col) => col.key === "bookingStatus")
   )
     columns.push({ key: "bookingStatus", label: "BOOKING STATUS" });
@@ -173,7 +178,7 @@ const CategoryMedicalTable = (props: Props) => {
   const amountColumn = columns.find((col) =>
     ["amount", "price", "lineTotal"].includes(col.key),
   );
-  const groups = groupNursingRows(props.rows);
+  const groups = groupNursingRows(displayRows);
   return (
     <div className="space-y-5">
       {amountColumn && props.rows.length > 0 && (

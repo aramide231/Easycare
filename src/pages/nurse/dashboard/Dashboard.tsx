@@ -46,7 +46,7 @@ const NurseDashboard = () => {
         {selectedPatient ? (
           <div className="space-y-4">
             <PatientCard patient={selectedPatient} />
-            <button type="button" className="w-full rounded-lg border border-[#573FD1] bg-purple-50 px-4 py-3 text-sm font-semibold text-[#573FD1]" onClick={() => navigate(`/nurse/patient-profile/${encodeURIComponent(selectedPatient.patientId)}`, { state: { patient: selectedPatient } })}>View Patient Profile</button>
+            <button type="button" className="w-full rounded-lg border border-[#573FD1] bg-purple-50 px-4 py-3 text-sm font-semibold text-[#573FD1] hover:bg-purple-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#573FD1]" onClick={() => navigate(`/nurse/patient-profile/${encodeURIComponent(selectedPatient.patientId)}`, { state: { patient: selectedPatient } })}>View Patient Profile</button>
           </div>
         ) : (
           <div className="flex min-h-[16rem] flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center shadow-sm">

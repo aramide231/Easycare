@@ -1,3 +1,4 @@
+import { nursingReportKey } from "../lib/nursingSections";
 import MedicationDetails from "../nurse-categories/MedicationDetails";
 import DispenseHistory from "../nurse-categories/DispenseHistory";
 import ProcedureDetails from "../nurse-categories/ProcedureDetails";
@@ -31,7 +32,7 @@ const CategoryFormAccordion = ({
         const isOpen = expandedCategories.includes(section.label);
         const form =
           section.label === "REPORT WRITING" ? (
-            <ReportWriting category={selectedCategory} />
+            <ReportWriting key={nursingReportKey(selectedCategory)} category={selectedCategory} showHeading={false} />
           ) : section.label === "OUTPUT CHART" ? (
             <OutputChart />
           ) : section.label === "FEEDING CHART" ? (
@@ -56,10 +57,10 @@ const CategoryFormAccordion = ({
             <button
               type="button"
               onClick={() => onToggle(section.label)}
-              className="relative w-full border-b-2 border-[#573FD1] py-3 text-left"
+              className={section.label === "REPORT WRITING" ? "relative flex w-full items-center justify-between border-b border-[#71349a] pb-1 pt-2 text-left" : "relative w-full border-b-2 border-[#573FD1] py-3 text-left"}
             >
-              <span className="absolute -bottom-0.5 left-0 z-10 max-w-[min(100%,20rem)] rounded-t-md bg-[#573FD1] px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
-                {section.label}
+              <span className={section.label === "REPORT WRITING" ? "text-lg font-bold leading-6 text-black" : "absolute -bottom-0.5 left-0 z-10 max-w-[min(100%,20rem)] rounded-t-md bg-[#573FD1] px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-sm"}>
+                {section.label === "REPORT WRITING" ? "Report Writing" : section.label}
               </span>
               <div className="flex min-h-[2.25rem] items-center justify-end pr-1">
                 <ChevronDown

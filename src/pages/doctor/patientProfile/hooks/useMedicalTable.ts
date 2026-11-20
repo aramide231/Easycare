@@ -711,6 +711,11 @@ function commitPendingSection(
   return true;
 }
 
+/** Copy a draft for nursing forms that remount when the treatment category changes. */
+export function getPendingSectionEntry(key: string): Record<string, string> | null {
+  return pendingSectionEntries[key] ? { ...pendingSectionEntries[key] } : null;
+}
+
 /** Read a draft without recording it or clearing the form. */
 export function getPendingSectionRows(key: string): Record<string, unknown>[] {
   if (!hasPendingSectionEntry(key)) return [];
@@ -739,7 +744,9 @@ export const useMedicalTable = (tableKey: string) => {
 
   const save = (data: Record<string, string>) => {
     const enteredBy = user?.fullName ?? "Unknown User";
-    const doctor = user?.fullName ? `Dr. ${user.fullName}` : "Unknown Doctor";
+    const doctor = nursingStatus
+      ? enteredBy
+      : user?.fullName ? `Dr. ${user.fullName}` : "Unknown Doctor";
     appendTableRow(
       tableKey,
       withNursingStatus(data,nursingStatus),
@@ -817,7 +824,7 @@ export function recordNursingMedicationRemark(
   const updated = {
     ...med,
     remark,
-    served: true,
+    served: !["Declined", "Missed", "Not Available"].includes(remark),
     dispensedBy: nurse,
     nursingRemarkAt: actionAt || now,
     nursingRemarkBy: nurseId,

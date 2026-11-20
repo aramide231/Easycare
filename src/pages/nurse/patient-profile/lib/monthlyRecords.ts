@@ -17,6 +17,7 @@ export function groupNursingRows(rows: Row[]): [string, Row[]][] {
     const stamp = recordTimestamp(row);
     const month = stamp
       ? new Date(stamp).toLocaleDateString("en-GB", {
+          timeZone: "Africa/Lagos",
           month: "long",
           year: "numeric",
         })

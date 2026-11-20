@@ -1,6 +1,9 @@
 import type { Row } from "./monthlyRecords";
 export function medicationDescription(row: Row): string {
-  const name = String(row.medication ?? row.item ?? "");
+  const rawName = String(row.medication ?? row.item ?? "");
+  const drugForm = String(row.drugForm ?? "").trim();
+  const name = drugForm && !rawName.toLowerCase().includes(drugForm.toLowerCase())
+    ? `${rawName} ${drugForm}` : rawName;
   const strength = String(row.strength ?? "");
   const medication =
     strength && !name.toLowerCase().includes(strength.toLowerCase())

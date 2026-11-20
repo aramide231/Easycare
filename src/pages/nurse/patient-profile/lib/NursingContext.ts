@@ -13,6 +13,8 @@ export function withNursingStatus(
   return {
     ...data,
     ...(booking ? { bookingStatus: data.patientType } : {}),
+    ...(!booking && data.patientType && !/^(in|out)-patient$/i.test(data.patientType)
+      ? { patientCategory: data.patientType } : {}),
     patientType: status,
   };
 }

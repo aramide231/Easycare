@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import ExportButton from "@doctor-shared/components/ExportButton";
+import ExportButton from "@/constant/ExportButton";
 import LogSearchBar from "@doctor-shared/components/LogSearchBar";
 import TablePagination from "@doctor-shared/components/TablePagination";
 import { getTotalPages } from "@doctor-shared/lib/pagination";
@@ -110,7 +110,7 @@ const PreviousPatientRecords = () => {
                         <button
                           type="button"
                           onClick={() => handleViewRecord(row)}
-                          className="rounded-md bg-[#22C55E] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#16A34A]"
+                          className="rounded-md border border-[#573FD1] px-4 py-1.5 text-xs font-semibold text-[#573FD1] transition hover:bg-purple-50"
                         >
                           View
                         </button>

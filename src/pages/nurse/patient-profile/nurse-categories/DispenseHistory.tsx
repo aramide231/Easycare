@@ -1,7 +1,7 @@
 import { moneyValue } from "../lib/monthlyRecords";
 import { useMedicalTable } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
 import CategoryMedicalTable from "@/pages/doctor/patientProfile/components/category/CategoryMedicalTable";
-import { medicationDescription } from "../lib/medicationDisplay";
+import { flattenPrescriptions, medicationDescription } from "../lib/medicationDisplay";
 export default function DispenseHistory({
   pharmacy = false,
 }: {
@@ -25,7 +25,8 @@ export default function DispenseHistory({
         ...(!pharmacy ? [{ key: "remark", label: "Remark" }] : []),
         { key: "dispensedBy", label: "Dispensed By" },
       ]}
-      rows={history.map((row) => ({
+      wrapColumns={["medication"]}
+      rows={flattenPrescriptions(history).map((row) => ({
         ...row,
         medication: medicationDescription(row),
         amount: moneyValue(row.lineTotal ?? row.amount).toLocaleString(

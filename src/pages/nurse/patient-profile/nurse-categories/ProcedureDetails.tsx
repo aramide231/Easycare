@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { NursingPatientStatusContext } from "../lib/NursingContext";
+import { nursingDisplayRow } from "../lib/recordDetails";
+import { useContext, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   useMedicalTable,
@@ -13,6 +15,7 @@ export default function ProcedureDetails({
   category: string | null;
 }) {
   const { user } = useAuth();
+  const status = useContext(NursingPatientStatusContext);
   const key = categoryStorageKey(category, "PROCEDURE");
   const { history } = useMedicalTable(key);
   const [selected, setSelected] = useState<number | null>(null);
@@ -57,7 +60,7 @@ export default function ProcedureDetails({
         findings.
       </p>
       {groupNursingRows(
-        history.map((item, index) => ({ ...item, rowIndex: index })),
+        history.map((item, index) => ({ ...nursingDisplayRow(item, status), rowIndex: index })),
       ).map(([month, items]) => (
         <section key={month}>
           <h4 className="mb-2 font-semibold">{month}</h4>
@@ -143,7 +146,7 @@ export default function ProcedureDetails({
             role="dialog"
             aria-modal="true"
             aria-labelledby="nursing-procedure-title"
-            className="relative flex h-full w-full max-w-lg flex-col bg-white p-6 shadow-xl"
+            className="relative flex h-full min-h-0 w-full max-w-lg flex-col overflow-y-auto bg-white p-4 shadow-xl sm:p-6"
           >
             <div className="flex justify-between gap-4">
               <h3 id="nursing-procedure-title" className="font-bold">
