@@ -1,3 +1,5 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./AccountSettings.preview";
 import { useSearchParams } from "react-router-dom";
 import StaffProfileDetails from "@/components/header/StaffProfileDetails";
 import HelpDeskTab from "./components/HelpDeskTab";
@@ -9,7 +11,7 @@ const tabs = [
   { id: "logout", label: "Logout" },
 ];
 
-export default function AccountSettings() {
+function AccountSettings() {
   const [params, setParams] = useSearchParams();
   const active = tabs.some((tab) => tab.id === params.get("tab")) ? params.get("tab") : "account";
   return <section className="overflow-hidden rounded-xl border bg-white shadow-sm">
@@ -26,4 +28,8 @@ export default function AccountSettings() {
       {active === "logout" && <LogoutTab />}
     </div>
   </section>;
+}
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <AccountSettings />;
 }

@@ -1,3 +1,6 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./HeaderPatientSearch.preview";
+import type { ComponentProps } from "react";
 import { useRef, useState } from "react";
 import { Search } from "lucide-react";
 import PatientSearchModal from "./PatientSearchModal";
@@ -53,4 +56,8 @@ const HeaderPatientSearch = ({ className = "" }: Props) => {
   );
 };
 
-export default HeaderPatientSearch;
+
+
+export default function MergedComponent(props: ComponentProps<typeof HeaderPatientSearch>) {
+  return IS_DEMO ? <PreviewComponent {...props} /> : <HeaderPatientSearch {...props} />;
+}

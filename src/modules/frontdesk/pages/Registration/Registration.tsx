@@ -1,4 +1,7 @@
-export { default } from "@/pages/patients/PatientEditor";
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./Registration.preview";
+import type { ComponentProps } from "react";
+import SavedComponent from "@/pages/patients/PatientEditor";
 
 export type PatientData = {
   firstName?: string;
@@ -28,3 +31,7 @@ export type PatientData = {
   emergencyContactPhone?: string;
   emergencyContactRelationship?: string;
 };
+
+export default function MergedComponent(props: ComponentProps<typeof SavedComponent>) {
+  return IS_DEMO ? <PreviewComponent /> : <SavedComponent {...props} />;
+}

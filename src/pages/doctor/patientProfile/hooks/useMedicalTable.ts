@@ -1,6 +1,9 @@
-import { NursingPatientStatusContext, withNursingStatus } from "@/pages/nurse/patient-profile/lib/NursingContext";
-import { useSyncExternalStore, useContext } from "react";
 import { registerSessionCleanup } from "@/lib/sessionScope";
+import {
+  NursingPatientStatusContext,
+  withNursingStatus,
+} from "@/pages/nurse/patient-profile/lib/NursingContext";
+import { useContext, useSyncExternalStore } from "react";
 import { useAuth } from "@doctor-shared/context/useAuth";
 import { DIAGNOSIS_SEED } from "../data/diagnosisSeed";
 import { INVESTIGATION_SEED } from "../data/investigationSeed";
@@ -301,9 +304,7 @@ export function subscribeSectionFormClear(
     sectionClearListeners.set(tableKey, new Set());
   }
   sectionClearListeners.get(tableKey)!.add(listener);
-  return () => {
-    sectionClearListeners.get(tableKey)?.delete(listener);
-  };
+  return () => { sectionClearListeners.get(tableKey)?.delete(listener); };
 }
 
 function notifySectionClear(tableKey: string) {

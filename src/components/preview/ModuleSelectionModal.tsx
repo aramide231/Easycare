@@ -1,3 +1,6 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./ModuleSelectionModal.preview";
+import type { ComponentProps } from "react";
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -125,4 +128,8 @@ const ModuleSelectionModal = ({ onSelect }: Props) => {
   );
 };
 
-export default ModuleSelectionModal;
+
+
+export default function MergedComponent(props: ComponentProps<typeof ModuleSelectionModal>) {
+  return IS_DEMO ? <PreviewComponent {...props} /> : <ModuleSelectionModal {...props} />;
+}

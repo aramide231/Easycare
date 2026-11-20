@@ -1,7 +1,10 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./EditProfileModal.preview";
+import type { ComponentProps } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import StaffProfileDetails from "./StaffProfileDetails";
 
-export default function EditProfileModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function EditProfileModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   return <Dialog open={open} onOpenChange={(next) => { if (!next) onClose(); }}>
     <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] overflow-y-auto">
       <DialogHeader>
@@ -11,4 +14,8 @@ export default function EditProfileModal({ open, onClose }: { open: boolean; onC
       <StaffProfileDetails />
     </DialogContent>
   </Dialog>;
+}
+
+export default function MergedComponent(props: ComponentProps<typeof EditProfileModal>) {
+  return IS_DEMO ? <PreviewComponent {...props} /> : <EditProfileModal {...props} />;
 }

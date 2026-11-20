@@ -1,3 +1,6 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./ProfileMenu.preview";
+import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, LogOut, Pencil, Send } from "lucide-react";
@@ -12,7 +15,7 @@ type ProfileMenuProps = {
   logoutPath?: string;
 };
 
-export default function ProfileMenu({
+function ProfileMenu({
   logoutPath = "/doctor/account?tab=logout",
 }: ProfileMenuProps) {
   const { user } = useAuth();
@@ -157,4 +160,8 @@ export default function ProfileMenu({
       />
     </div>
   );
+}
+
+export default function MergedComponent(props: ComponentProps<typeof ProfileMenu>) {
+  return IS_DEMO ? <PreviewComponent {...props} /> : <ProfileMenu {...props} />;
 }

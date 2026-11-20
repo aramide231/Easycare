@@ -1,4 +1,3 @@
-import { createSessionObjectUrl } from "@/lib/sessionScope";
 import { useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -56,7 +55,7 @@ const DownloadReport: React.FC<ExportPopupProps> = ({
         type: "application/json",
       });
       const link = document.createElement("a");
-      link.href = createSessionObjectUrl(blob);
+      link.href = URL.createObjectURL(blob);
       link.download = `${fileBase}.json`;
       document.body.appendChild(link);
       link.click();

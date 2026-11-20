@@ -21,8 +21,8 @@ import {
 } from "@/pages/doctor/patientProfile/hooks/useMedicalTable";
 import {
   buildPreviewSectionLines,
-  type PreviewSectionLine,
   sectionSupportsNumberedPreview,
+  type PreviewSectionLine,
 } from "@/pages/doctor/patientProfile/lib/previewSectionLines";
 
 type Props = {

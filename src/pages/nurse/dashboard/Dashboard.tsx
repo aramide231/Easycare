@@ -1,51 +1,66 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import PatientsLog from "./components/patientLog";
-import Summary from "./components/summary";
-import Calendar, { type DashboardDateRange } from "./components/calendar";
-import { buildMockPatients, type Patient } from "./data/mockPatients";
-export default function NurseDashboard() {
+import DashboardSummary from "./components/summary";
+
+import CustomCalendar, {
+  type DashboardDateRange,
+} from "./components/calendar";
+import PatientCard from "@/constant/patientCard";
+import {
+  buildMockPatients,
+  type Patient,
+} from "./data/mockPatients";
+
+const NurseDashboard = () => {
   const navigate = useNavigate();
-  const [patients, setPatients] = useState(buildMockPatients);
-  const [selected, setSelected] = useState<Patient | null>(null);
-  const [dateRange, setDateRange] = useState<DashboardDateRange>();
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [patients, setPatients] = useState<Patient[]>(() => buildMockPatients());
+  const [dateRange, setDateRange] = useState<DashboardDateRange | null>(null);
+
+  const handleRefreshPatients = () => {
+    setPatients(buildMockPatients());
+  };
+
   return (
-    <div className="space-y-5">
-      <Summary
-        outPatientCount={patients.length}
-        onRefreshPatients={() => setPatients(buildMockPatients())}
-      />
-      <div className="grid min-w-0 grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="min-w-0">
-          <PatientsLog
-            patients={patients}
-            onPatientsChange={setPatients}
-            onSelectPatient={setSelected}
-            dateRange={dateRange}
-          />
-        </div>
-        <div className="space-y-4">
-          <Calendar value={dateRange} onChange={setDateRange} />
-          <button
-            type="button"
-            disabled={!selected}
-            className="w-full rounded-lg border border-[#573FD1] bg-purple-50 px-4 py-3 text-sm font-semibold text-[#573FD1] hover:bg-purple-100 disabled:opacity-50"
-            onClick={() =>
-              selected &&
-              navigate(`/nurse/patient-profile/${selected.patientId}`, {
-                state: { patient: selected },
-              })
-            }
-          >
-            View Patient Profile
-          </button>
-          {!selected && (
-            <p className="text-sm text-gray-500">
-              Select a patient from the log to view their profile.
+    <div className="flex flex-col gap-6 xl:flex-row">
+      <div className="min-w-0 flex-[3]" data-search-panel-region>
+        <DashboardSummary
+          outPatientCount={patients.length}
+          onRefreshPatients={handleRefreshPatients}
+        />
+        <PatientsLog
+          patients={patients}
+          onPatientsChange={setPatients}
+          onSelectPatient={setSelectedPatient}
+          dateRange={dateRange}
+        />
+      </div>
+
+      <div className="flex w-full max-w-[17.5rem] flex-col gap-4">
+        <CustomCalendar
+          value={dateRange ?? undefined}
+          onChange={setDateRange}
+          className="w-full shrink-0"
+        />
+        {selectedPatient ? (
+          <div className="space-y-4">
+            <PatientCard patient={selectedPatient} />
+            <button type="button" className="w-full rounded-lg border border-[#573FD1] bg-purple-50 px-4 py-3 text-sm font-semibold text-[#573FD1]" onClick={() => navigate(`/nurse/patient-profile/${encodeURIComponent(selectedPatient.patientId)}`, { state: { patient: selectedPatient } })}>View Patient Profile</button>
+          </div>
+        ) : (
+          <div className="flex min-h-[16rem] flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center shadow-sm">
+            <p className="text-sm font-medium text-gray-800">
+              No patient selected
             </p>
-          )}
-        </div>
+            <p className="mt-2 text-xs leading-relaxed text-gray-500">
+              Select a patient from the log to view their card and details here.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default NurseDashboard;

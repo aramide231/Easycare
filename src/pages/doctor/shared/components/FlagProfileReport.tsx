@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import { registerSessionCleanup } from "@/lib/sessionScope";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { cn } from "@doctor-shared/lib/utils";

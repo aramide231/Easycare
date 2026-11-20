@@ -1,3 +1,5 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./Topbar.preview";
 import { useLocation, Link } from "react-router-dom";
 import HeaderPatientSearch from "@/components/header/HeaderPatientSearch";
 import AppGridMenu from "@/components/header/AppGridMenu";
@@ -29,7 +31,7 @@ const PERFORM_ACTION_BREADCRUMBS: Record<string, string> = {
   "/diagnostics/set-reminder": "Set Reminder",
 };
 
-export default function DiagnosticsTopbar() {
+function DiagnosticsTopbar() {
   const location = useLocation();
 
   const isBreadcrumbPage = breadcrumbPatterns.some((pattern) =>
@@ -126,4 +128,8 @@ export default function DiagnosticsTopbar() {
       </div>
     </header>
   );
+}
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <DiagnosticsTopbar />;
 }

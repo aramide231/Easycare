@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import { IS_DEMO } from "@/config/dataSource";
-import { loginStaff } from "@/api/auth/session";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import ModuleSelectionModal, {
   type PreviewModule,
 } from "@/components/preview/ModuleSelectionModal";
@@ -17,9 +17,10 @@ const modulePaths: Record<PreviewModule, string> = {
 
 const PreviewEntry = () => {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
   const handleSelect = async (module: PreviewModule) => {
-    if (IS_DEMO) await loginStaff("demo." + (module === "diagnostics" ? "diagnostics-and-radiologist" : module), "demo-only");
+    if (IS_DEMO) await signIn(`demo.${module}`, "demo-only");
     navigate(modulePaths[module]);
   };
 

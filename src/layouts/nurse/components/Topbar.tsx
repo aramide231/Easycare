@@ -1,3 +1,5 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./Topbar.preview";
 import { useLocation, Link } from "react-router-dom";
 import AppGridMenu from "@/components/header/AppGridMenu";
 import ProfileMenu from "@/components/header/ProfileMenu";
@@ -163,4 +165,8 @@ const Topbar = () => {
   );
 };
 
-export default Topbar;
+
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <Topbar />;
+}

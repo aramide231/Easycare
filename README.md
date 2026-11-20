@@ -6,6 +6,14 @@ The read-only audit viewer is available at `/admin/audit` to staff with `audit.v
 
 Private files are available at `/admin/files` to staff with `files.view_own`; uploading also requires `files.upload`. Each account sees only its own uploads, including administrators. The library accepts PDF/JPEG/PNG up to 10 MiB, shows scan status honestly, and downloads through an authenticated, integrity-checked endpoint. Files remain on the hospital server outside public storage. Run the backend migrations and seeder first. Current uploads are not virus-scanned; patient attachments and clinical access rules belong to their later workflows.
 
+## Combined nursing, radiology and saved-record workflows
+
+The team-designed module screens run in disconnected demo mode. Nursing retains patient selection, date filters, patient cards, profile navigation, category-scoped records and admission report previews. Radiology retains its dashboard, requisitions, investigation results and patient screens. Demo changes are sample data only.
+
+Backend mode retains the existing session/CSRF client, permission checks, saved patient/visit/clinical workspaces, staff administration, audit and private files. Shared `/patients`, `/appointments`, `/visits`, `/admissions`, `/wards` and `/care-programs` routes remain available in both modes using the selected transport. Module routes use their saved-record implementations in backend mode. All modules use the same identity provider and account cleanup boundary.
+
+Keep `VITE_DATA_SOURCE=demo` for disconnected previews. For backend integration, follow the explicit configuration steps below; verify `/api/v1/auth/me` returns JSON through the proxy and review backend access restrictions. Production backend connectivity and hospital acceptance require separate verification.
+
 ## Prepared backend staff sign-in
 
 After enabling backend mode as described below, start the Laravel backend in the sibling `backend` directory with `dev.cmd start`, then run `npm run dev` here and open the printed URL. The tracked development API base is `/api/v1`; Vite proxies it to the local backend on port 8000. Production hosting must route `/api/v1` to Laravel on the hospital server.

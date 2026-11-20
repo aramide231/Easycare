@@ -1,3 +1,5 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./ProfileMenu.preview";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, LogOut, Pencil, Send } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -194,4 +196,8 @@ const ProfileMenu = () => {
   );
 };
 
-export default ProfileMenu;
+
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <ProfileMenu />;
+}

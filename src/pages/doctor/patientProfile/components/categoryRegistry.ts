@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
 import { categoryComponents } from "./CategoryRenderer";
 import { subCategoryMap } from "../config/subCategoryMap";
 
@@ -8,7 +8,7 @@ export const categoryRegistry: Record<string, Record<string, ReactNode>> =
       category,
       Object.fromEntries(subCategoryMap[category].map(({ label }) => {
         const Component = categoryComponents[label];
-        return [label, Component ? <Component /> : null];
+        return [label, Component ? createElement(Component) : null];
       })),
     ]),
   );

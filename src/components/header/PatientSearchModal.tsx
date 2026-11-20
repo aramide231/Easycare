@@ -1,9 +1,12 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./PatientSearchModal.preview";
+import type { ComponentProps } from "react";
 import { useEffect, useRef, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import PatientRegistry from "@/pages/patients/PatientRegistry";
 
-export default function PatientSearchModal({ open, onClose, initialQuery = "" }: {
+function PatientSearchModal({ open, onClose, initialQuery = "" }: {
   open: boolean; onClose: () => void; initialQuery?: string; anchorRef: RefObject<HTMLElement | null>;
 }) {
   const navigate = useNavigate();
@@ -24,4 +27,8 @@ export default function PatientSearchModal({ open, onClose, initialQuery = "" }:
     <div className="mb-5 flex justify-end"><button className="rounded-lg border px-4 py-2 text-sm" onClick={onClose}>Close patient search</button></div>
     <PatientRegistry initialQuery={initialQuery} onSelect={(id) => { onClose(); navigate("/patients/" + id, { state: null }); }} />
   </dialog>, document.body);
+}
+
+export default function MergedComponent(props: ComponentProps<typeof PatientSearchModal>) {
+  return IS_DEMO ? <PreviewComponent {...props} /> : <PatientSearchModal {...props} />;
 }

@@ -1,5 +1,11 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./EditPatient.preview";
 import { PatientRouteRedirect } from "@/components/patient/patientWorkspace";
 
-export default function EditPatient() {
+function EditPatient() {
   return <PatientRouteRedirect suffix="/edit" />;
+}
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <EditPatient />;
 }

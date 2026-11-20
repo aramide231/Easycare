@@ -1,3 +1,5 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./LogoutTab.preview";
 import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -54,4 +56,8 @@ const LogoutTab = () => {
   );
 };
 
-export default LogoutTab;
+
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <LogoutTab />;
+}

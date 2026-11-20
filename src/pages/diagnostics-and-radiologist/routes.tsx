@@ -1,3 +1,5 @@
+import { IS_DEMO } from "@/config/dataSource";
+import { PatientRouteRedirect } from "@/components/patient/patientWorkspace";
 import { Route } from "react-router-dom";
 import DiagnosticsRadiologistLayout from "./layout/DiagnosticsRadiologistLayout";
 import Dashboard from "./dashboard/Dashboard";
@@ -8,7 +10,8 @@ import SetReminder from "./set-reminder/SetReminder";
 import InvestigationLogs from "./investigation-logs/InvestigationLogs";
 import RequestLogs from "./request-logs/RequestLogs";
 import VisitationLog from "./visitation/VisitationLog";
-import { PatientRouteRedirect } from "@/components/patient/patientWorkspace";
+import DiagnosticsPatientProfile from "./patient-profile/DiagnosticsPatientProfile";
+import DiagnosticsPreviousPatientRecords from "./previous-patient-records/DiagnosticsPreviousPatientRecords";
 import InvestigationProfile from "./investigation-profile/InvestigationProfile";
 
 export function DiagnosticsRadiologistRoutes() {
@@ -26,10 +29,10 @@ export function DiagnosticsRadiologistRoutes() {
       <Route path="investigation-logs" element={<InvestigationLogs />} />
       <Route path="request-logs" element={<RequestLogs />} />
       <Route path="visitation-logs" element={<VisitationLog />} />
-      <Route path="patient-profile/:id" element={<PatientRouteRedirect />} />
+      <Route path="patient-profile/:id" element={IS_DEMO ? <DiagnosticsPatientProfile /> : <PatientRouteRedirect />} />
       <Route
         path="previous-patient-records/:id"
-        element={<PatientRouteRedirect suffix="/history" />}
+        element={IS_DEMO ? <DiagnosticsPreviousPatientRecords /> : <PatientRouteRedirect suffix="/history" />}
       />
       <Route
         path="investigation-profile/:id"

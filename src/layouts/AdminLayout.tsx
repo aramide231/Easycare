@@ -1,8 +1,10 @@
+import { IS_DEMO } from "@/config/dataSource";
+import PreviewComponent from "./AdminLayout.preview";
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
-export default function AdminLayout() {
+function AdminLayout() {
   const { user, signOut } = useAuth();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -31,4 +33,8 @@ export default function AdminLayout() {
     {error && <p role="alert" className="mx-auto max-w-7xl px-5 pt-4 text-red-700">{error}</p>}
     <main className="mx-auto max-w-7xl p-5 md:p-8"><Outlet /></main>
   </div>;
+}
+
+export default function MergedComponent() {
+  return IS_DEMO ? <PreviewComponent /> : <AdminLayout />;
 }
